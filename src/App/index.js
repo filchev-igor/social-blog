@@ -14,6 +14,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import firebaseAuth from "../Firebase";
 import PageDoesNotExist from "./404";
+import PasswordForget from "./passwordForget";
 
 const App = () => {
     const [authUser, setAuthUser] = useState('halt execution');
@@ -45,7 +46,7 @@ const App = () => {
                     {authUser ? '' : <Redirect to={ROUTES.SIGN_IN}/>}
                 </Route>
                 <Route path={ROUTES.PASSWORD_FORGET}>
-                    {authUser ? '' : <Redirect to={ROUTES.SIGN_IN}/>}
+                    {authUser ? <Redirect to={ROUTES.HOME} /> : <PasswordForget />}
                 </Route>
                 <Route path="*">
                     {authUser ? <PageDoesNotExist /> : <Redirect to={ROUTES.SIGN_IN}/>}

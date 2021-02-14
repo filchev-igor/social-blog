@@ -1,8 +1,9 @@
 import React, {useState} from "react";
-import {SignInUpInput, SignInUpPage} from "../components/signInUp";
+import {SignInUpPage} from "../components/signInUp";
 import firebaseAuth from "../Firebase";
 import {useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
+import {LabeledInput} from "../components/globalLayout";
 
 const firebaseErrorState = {
     code: '',
@@ -45,11 +46,11 @@ const SignUp = () => {
                 <button disabled={isInvalid} type="button" className="btn btn-info" onClick={handleCreateUser}>Sign up</button>
             }>
 
-            <SignInUpInput type="email" id="email" value={email} placeholder="E-mail" onChange={setEmail}/>
+            <LabeledInput type="email" id="email" value={email} placeholder="E-mail" onChange={setEmail}/>
 
-            <SignInUpInput type="password" id="firstPassword" value={firstPassword} placeholder="Password" onChange={setFirstPassword}/>
+            <LabeledInput type="password" id="firstPassword" value={firstPassword} placeholder="Password" onChange={setFirstPassword}/>
 
-            <SignInUpInput type="password" id="secondPassword" value={secondPassword} placeholder="Repeat password" onChange={setSecondPassword}/>
+            <LabeledInput type="password" id="secondPassword" value={secondPassword} placeholder="Repeat password" onChange={setSecondPassword}/>
         </SignInUpPage>
     );
 };

@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from "react";
-import {SignInUpPage, SignInUpInput} from "../components/signInUp";
+import {SignInUpPage} from "../components/signInUp";
 import firebaseAuth from "../Firebase";
-import {useHistory} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
+import {LabeledInput} from "../components/globalLayout";
 
 const firebaseErrorState = {
     code: '',
@@ -60,11 +61,15 @@ const SignIn = props => {
                         onClick={!hasTypedEmail ? handleEmail : handleLogin}>{!hasTypedEmail ? "Continue" : "Sign in"}</button>
             }>
             {!hasTypedEmail ?
-                <SignInUpInput type="email" id="email" value={email} placeholder="E-mail" onChange={setEmail}/>
+                <LabeledInput type="email" id="email" value={email} placeholder="E-mail" onChange={setEmail}/>
                 :
-                <SignInUpInput type="password" id="password" value={password} placeholder="Password"
+                <LabeledInput type="password" id="password" value={password} placeholder="Password"
                                onChange={setPassword}/>
             }
+
+            <p className="card-text mt-3 mb-0 text-center">
+                <Link className="link-warning" to={ROUTES.PASSWORD_FORGET}>I forgot the password</Link>
+            </p>
         </SignInUpPage>
     );
 };
