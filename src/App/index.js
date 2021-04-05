@@ -19,7 +19,7 @@ import Account from "./account";
 import {AuthUserContext} from "../contexts";
 
 const App = () => {
-    const [authUser, setAuthUser] = useState('halt execution');
+    const [authUser, setAuthUser] = useState(null);
 
     useEffect(() => {
         const userObserver = firebaseAuth.onAuthStateChanged(user => setAuthUser(user));
