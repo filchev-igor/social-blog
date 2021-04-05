@@ -15,6 +15,8 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import firebaseAuth from "../Firebase";
 import PageDoesNotExist from "./404";
 import PasswordForget from "./passwordForget";
+import Account from "./account";
+import {AuthUserContext} from "../contexts";
 
 const App = () => {
     const [authUser, setAuthUser] = useState('halt execution');
@@ -27,31 +29,37 @@ const App = () => {
 
     return (
         <Router>
-            <Navbar authUser={authUser} />
+            <AuthUserContext.Provider value={authUser}>
+                <Navbar />
 
-            <Switch>
-                <Route exact path={ROUTES.HOME}>
-                    {authUser ? <Home/> : <Redirect to={ROUTES.SIGN_IN}/>}
-                </Route>
-                <Route path={ROUTES.SIGN_IN}>
-                    {authUser ? <Redirect to={ROUTES.HOME} /> : <SignIn authUser={authUser} />}
-                </Route>
-                <Route path={ROUTES.SIGN_UP}>
-                    {authUser ? <Redirect to={ROUTES.HOME} /> : <SignUp />}
-                </Route>
-                <Route path={ROUTES.ACCOUNT}>
-                    {authUser ? '' : <Redirect to={ROUTES.SIGN_IN}/>}
-                </Route>
-                <Route path={ROUTES.ADMIN}>
-                    {authUser ? '' : <Redirect to={ROUTES.SIGN_IN}/>}
-                </Route>
-                <Route path={ROUTES.PASSWORD_FORGET}>
-                    {authUser ? <Redirect to={ROUTES.HOME} /> : <PasswordForget />}
-                </Route>
-                <Route path="*">
-                    {authUser ? <PageDoesNotExist /> : <Redirect to={ROUTES.SIGN_IN}/>}
-                </Route>
-            </Switch>
+                <Switch>
+                    <Route exact path={ROUTES.HOME}>
+                        {authUser ? <Home/> : <Redirect to={ROUTES.SIGN_IN}/>}
+                    </Route>
+                    <Route path={ROUTES.SIGN_IN}>
+                        {authUser ? <Redirect to={ROUTES.HOME} /> : <SignIn authUser={authUser} />}
+                    </Route>
+                    <Route path={ROUTES.SIGN_UP}>
+                        {authUser ? <Redirect to={ROUTES.HOME} /> : <SignUp />}
+                    </Route>
+                    <Route path={ROUTES.ACCOUNT}>
+                        {authUser ?
+
+                                <Account />
+                            :
+                            <Redirect to={ROUTES.SIGN_IN}/>}
+                    </Route>
+                    <Route path={ROUTES.ADMIN}>
+                        {authUser ? '' : <Redirect to={ROUTES.SIGN_IN}/>}
+                    </Route>
+                    <Route path={ROUTES.PASSWORD_FORGET}>
+                        {authUser ? <Redirect to={ROUTES.HOME} /> : <PasswordForget />}
+                    </Route>
+                    <Route path="*">
+                        {authUser ? <PageDoesNotExist /> : <Redirect to={ROUTES.SIGN_IN}/>}
+                    </Route>
+                </Switch>
+            </AuthUserContext.Provider>
         </Router>
     );
 }

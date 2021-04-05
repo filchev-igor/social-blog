@@ -1,11 +1,12 @@
-import React from "react";
+import React, {useContext} from "react";
 import { Link } from 'react-router-dom';
 import * as ROUTES from '../constants/routes';
 import LogoutButton from "./logoutButton";
 import {NavbarTop} from "./globalLayout";
+import {AuthUserContext} from "../contexts";
 
-const Navbar = props => {
-    const {authUser} = props;
+const Navbar = () => {
+    const {authUser} = useContext(AuthUserContext);
 
     if (authUser === "halt execution")
         return <NavbarTop />;

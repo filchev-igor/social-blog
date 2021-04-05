@@ -4,12 +4,7 @@ import firebaseAuth from "../Firebase";
 import {Link, useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
 import {LabeledInput} from "../components/globalLayout";
-
-const firebaseErrorState = {
-    code: '',
-    message: '',
-    a: ''
-};
+import firebaseErrorData from "../constants/firebaseError";
 
 const SignIn = props => {
     const {
@@ -19,7 +14,7 @@ const SignIn = props => {
     const [hasTypedEmail, setHasTypedEmail] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [firebaseError, setFirebaseError] = useState(firebaseErrorState);
+    const [firebaseError, setFirebaseError] = useState(firebaseErrorData);
 
     const history = useHistory();
 
@@ -29,7 +24,7 @@ const SignIn = props => {
                 setHasTypedEmail(false);
                 setEmail('');
                 setPassword('');
-                setFirebaseError(firebaseErrorState);
+                setFirebaseError(firebaseErrorData);
                 history.push(ROUTES.HOME);
             })
             .catch(error => setFirebaseError(error));

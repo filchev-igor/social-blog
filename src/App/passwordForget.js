@@ -3,23 +3,18 @@ import React, {useState} from "react";
 import firebaseAuth from "../Firebase";
 import {Link} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
-
-const firebaseErrorState = {
-    code: '',
-    message: '',
-    a: ''
-};
+import firebaseErrorData from "../constants/firebaseError";
 
 const PasswordForget = () => {
     const [email, setEmail] = useState('');
-    const [firebaseError, setFirebaseError] = useState(firebaseErrorState);
+    const [firebaseError, setFirebaseError] = useState(firebaseErrorData);
     const [isLinkSent, setIsLinkSent] = useState(false);
 
     const handlePasswordRestore = e => {
         firebaseAuth.sendPasswordResetEmail(email)
             .then(() => {
                 setEmail('');
-                setFirebaseError(firebaseErrorState);
+                setFirebaseError(firebaseErrorData);
                 setIsLinkSent(true);
             })
             .catch(error => setFirebaseError(error));

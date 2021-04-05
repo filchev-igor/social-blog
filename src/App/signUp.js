@@ -4,34 +4,29 @@ import firebaseAuth from "../Firebase";
 import {useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
 import {LabeledInput} from "../components/globalLayout";
-
-const firebaseErrorState = {
-    code: '',
-    message: '',
-    a: ''
-};
+import firebaseErrorData from "../constants/firebaseError";
 
 const SignUp = () => {
     const [email, setEmail] = useState('');
-    const [firstPassword, setFirstPassword] = useState('');
-    const [secondPassword, setSecondPassword] = useState('');
-    const [firebaseError, setFirebaseError] = useState(firebaseErrorState);
+    const [password, setPassword] = useState('');
+    const [passwordRepeat, setPasswordRepeat] = useState('');
+    const [firebaseError, setFirebaseError] = useState(firebaseErrorData);
 
     const history = useHistory();
 
     const isInvalid =
-        firstPassword !== secondPassword ||
-        firstPassword === '' ||
+        password !== passwordRepeat ||
+        password === '' ||
         email === '';
 
     const handleCreateUser = e => {
-        firebaseAuth.createUserWithEmailAndPassword(email, firstPassword)
-            .then(authUser => {
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+            .then(() => {
                 setEmail('');
-                setFirstPassword('');
-                setSecondPassword('');
-                setFirebaseError(firebaseErrorState);
-                history.push(ROUTES.HOME);
+                setPassword('');
+                setPasswordRepeat('');
+                setFirebaseError(firebaseErrorData);
+                history.push(ROUTES.ACCOUNT);
             })
             .catch(error => setFirebaseError(error));
 
@@ -48,9 +43,9 @@ const SignUp = () => {
 
             <LabeledInput type="email" id="email" value={email} placeholder="E-mail" onChange={setEmail}/>
 
-            <LabeledInput type="password" id="firstPassword" value={firstPassword} placeholder="Password" onChange={setFirstPassword}/>
+            <LabeledInput type="password" id="password" value={password} placeholder="Password" onChange={setPassword}/>
 
-            <LabeledInput type="password" id="secondPassword" value={secondPassword} placeholder="Repeat password" onChange={setSecondPassword}/>
+            <LabeledInput type="password" id="passwordRepeat" value={passwordRepeat} placeholder="Repeat password" onChange={setPasswordRepeat}/>
         </SignInUpPage>
     );
 };
