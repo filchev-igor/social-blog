@@ -1,8 +1,9 @@
-import React from "react";
+import React, {useContext} from "react";
 import {ContainerFluid} from "../components/globalLayout";
-import {Link, Redirect, Route, Switch, useRouteMatch} from "react-router-dom";
+import {Link, Redirect, Route, Switch, useHistory, useRouteMatch} from "react-router-dom";
 import * as ROUTES from '../constants/routes';
 import AccountPage from "../components/accountPage/accountPage";
+import {AuthUserContext} from "../contexts";
 
 const accountLinks = [
     ROUTES.ACCOUNT_USER_DATA,
@@ -13,7 +14,18 @@ const accountLinks = [
 const accountLinksName = accountLinks.map(value => value.slice(1));
 
 const Account = () => {
+    const authUser = useContext(AuthUserContext);
+
+    const history = useHistory();
     const {path, url} = useRouteMatch();
+
+    const condition = authUser => !!authUser;
+
+    if (!condition(authUser)) {
+        history.push(ROUTES.SIGN_IN);
+
+        return null;
+    }
 
     return (
         <ContainerFluid>

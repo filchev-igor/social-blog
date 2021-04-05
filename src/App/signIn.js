@@ -1,15 +1,14 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {SignInUpPage} from "../components/signInUp";
 import firebaseAuth from "../Firebase";
 import {Link, useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
 import {LabeledInput} from "../components/globalLayout";
 import firebaseErrorData from "../constants/firebaseError";
+import {AuthUserContext} from "../contexts";
 
-const SignIn = props => {
-    const {
-        authUser
-    } = props;
+const SignIn = () => {
+    const authUser = useContext(AuthUserContext);
 
     const [hasTypedEmail, setHasTypedEmail] = useState(false);
     const [email, setEmail] = useState('');
@@ -17,6 +16,8 @@ const SignIn = props => {
     const [firebaseError, setFirebaseError] = useState(firebaseErrorData);
 
     const history = useHistory();
+
+    const condition = authUser => !!authUser;
 
     const handleLogin = e => {
         firebaseAuth.signInWithEmailAndPassword(email, password)
@@ -44,8 +45,11 @@ const SignIn = props => {
         }
     }, [firebaseError]);
 
-    if (authUser === "halt execution")
+    if (condition(authUser)) {
+        history.push(ROUTES.HOME);
+
         return null;
+    }
 
     return (
         <SignInUpPage

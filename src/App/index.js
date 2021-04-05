@@ -17,6 +17,7 @@ import PageDoesNotExist from "./404";
 import PasswordForget from "./passwordForget";
 import Account from "./account";
 import {AuthUserContext} from "../contexts";
+import Admin from "./admin";
 
 const App = () => {
     const [authUser, setAuthUser] = useState(null);
@@ -34,29 +35,25 @@ const App = () => {
 
                 <Switch>
                     <Route exact path={ROUTES.HOME}>
-                        {authUser ? <Home/> : <Redirect to={ROUTES.SIGN_IN}/>}
+                        <Home />
                     </Route>
                     <Route path={ROUTES.SIGN_IN}>
-                        {authUser ? <Redirect to={ROUTES.HOME} /> : <SignIn authUser={authUser} />}
+                        <SignIn />
                     </Route>
                     <Route path={ROUTES.SIGN_UP}>
-                        {authUser ? <Redirect to={ROUTES.HOME} /> : <SignUp />}
+                        <SignUp />
                     </Route>
                     <Route path={ROUTES.ACCOUNT}>
-                        {authUser ?
-
-                                <Account />
-                            :
-                            <Redirect to={ROUTES.SIGN_IN}/>}
+                        <Account />
                     </Route>
                     <Route path={ROUTES.ADMIN}>
-                        {authUser ? '' : <Redirect to={ROUTES.SIGN_IN}/>}
+                        <Admin />
                     </Route>
                     <Route path={ROUTES.PASSWORD_FORGET}>
-                        {authUser ? <Redirect to={ROUTES.HOME} /> : <PasswordForget />}
+                        <PasswordForget />
                     </Route>
                     <Route path="*">
-                        {authUser ? <PageDoesNotExist /> : <Redirect to={ROUTES.SIGN_IN}/>}
+                        <PageDoesNotExist />
                     </Route>
                 </Switch>
             </AuthUserContext.Provider>

@@ -1,14 +1,21 @@
 import {ContainerFluid, LabeledInput, SingleColumn} from "../components/globalLayout";
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import firebaseAuth from "../Firebase";
-import {Link} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
 import firebaseErrorData from "../constants/firebaseError";
+import {AuthUserContext} from "../contexts";
 
 const PasswordForget = () => {
+    const authUser = useContext(AuthUserContext);
+
+    const history = useHistory();
+
     const [email, setEmail] = useState('');
     const [firebaseError, setFirebaseError] = useState(firebaseErrorData);
     const [isLinkSent, setIsLinkSent] = useState(false);
+
+    const condition = authUser => !!authUser;
 
     const handlePasswordRestore = e => {
         firebaseAuth.sendPasswordResetEmail(email)
@@ -21,6 +28,12 @@ const PasswordForget = () => {
 
         e.preventDefault();
     };
+
+    if (condition(authUser)) {
+        history.push(ROUTES.HOME);
+
+        return null;
+    }
 
     return (
         <ContainerFluid>

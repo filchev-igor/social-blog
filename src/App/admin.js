@@ -1,9 +1,9 @@
 import React, {useContext} from "react";
-import {AuthUserContext} from "../contexts";
-import * as ROUTES from '../constants/routes';
 import {useHistory} from "react-router-dom";
+import {AuthUserContext} from "../contexts";
+import * as ROUTES from "../constants/routes";
 
-const Home = () => {
+const Admin = () => {
     const authUser = useContext(AuthUserContext);
 
     const history = useHistory();
@@ -15,10 +15,6 @@ const Home = () => {
 
         return null;
     }
-
-    return (
-        <div></div>
-    );
 };
 
-export default Home;
+export default Admin;
