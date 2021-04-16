@@ -18,18 +18,20 @@ const App = () => {
     const [authUser, setAuthUser] = useState(null);
 
     useEffect(() => {
-        const userObserver = firebaseAuth.onAuthStateChanged(
-            user => {
-                setAuthUser(user);
-
-                if (user) {
-                    firebaseFirestore.collection("users").doc(user.uid)
-                        .onSnapshot(doc => setAuthUser({...user, ...doc.data()}));
-                }
-            }
+        const authObserver = firebaseAuth.onAuthStateChanged(
+            user => setAuthUser({...authUser, ...user})
         );
 
-        return () => userObserver();
+        return () => authObserver();
+    }, []);
+
+    useEffect(() => {
+        if (authUser) {
+            const firestoreObserver = firebaseFirestore.collection("users").doc(authUser.uid)
+                .onSnapshot(doc => setAuthUser({...authUser, ...doc.data()}));
+
+            return () => firestoreObserver();
+        }
     }, []);
 
     return (
