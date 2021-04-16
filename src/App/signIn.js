@@ -1,11 +1,12 @@
 import React, {useContext, useEffect, useState} from "react";
 import {SignInUpPage} from "../components/signInUp";
-import firebaseAuth from "../Firebase";
 import {Link, useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
 import {LabeledInput} from "../components/globalLayout";
-import firebaseErrorData from "../constants/firebaseError";
 import {AuthUserContext} from "../contexts";
+import {firebaseAuth} from "../Firebase";
+import {firebaseAuthErrorData} from "../constants/firebaseErrors";
+import Input from "../components/layout/input";
 
 const SignIn = () => {
     const authUser = useContext(AuthUserContext);
@@ -13,7 +14,7 @@ const SignIn = () => {
     const [hasTypedEmail, setHasTypedEmail] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [firebaseError, setFirebaseError] = useState(firebaseErrorData);
+    const [firebaseAuthError, setFirebaseAuthError] = useState(firebaseAuthErrorData);
 
     const history = useHistory();
 
@@ -25,10 +26,10 @@ const SignIn = () => {
                 setHasTypedEmail(false);
                 setEmail('');
                 setPassword('');
-                setFirebaseError(firebaseErrorData);
+                setFirebaseAuthError(firebaseAuthErrorData);
                 history.push(ROUTES.HOME);
             })
-            .catch(error => setFirebaseError(error));
+            .catch(error => setFirebaseAuthError(error));
 
         e.preventDefault();
     };
@@ -36,17 +37,18 @@ const SignIn = () => {
     const handleEmail = () => setHasTypedEmail(true);
 
     useEffect(() => {
-        if (firebaseError) {
-            if (firebaseError.code === "auth/invalid-email" || firebaseError.code === "auth/user-not-found") {
+        if (firebaseAuthError) {
+            if (firebaseAuthError.code === "auth/invalid-email" || firebaseAuthError.code === "auth/user-not-found") {
                 setHasTypedEmail(false);
                 setEmail('');
                 setPassword('');
             }
         }
-    }, [firebaseError]);
+    }, [firebaseAuthError]);
 
     if (condition(authUser)) {
-        history.push(ROUTES.HOME);
+        //TODO fix history push. It creates many errors
+        //history.push(ROUTES.HOME);
 
         return null;
     }
@@ -54,16 +56,16 @@ const SignIn = () => {
     return (
         <SignInUpPage
             doesUserHaveAccount={true}
-            firebaseError={firebaseError}
+            firebaseAuthError={firebaseAuthError}
             submitButton={
                 <button type="button" className="btn btn-info"
                         onClick={!hasTypedEmail ? handleEmail : handleLogin}>{!hasTypedEmail ? "Continue" : "Sign in"}</button>
             }>
             {!hasTypedEmail ?
-                <LabeledInput type="email" id="email" value={email} placeholder="E-mail" onChange={setEmail}/>
+                <Input type="email" id="email" value={email} placeholder="E-mail" onChange={setEmail}/>
                 :
-                <LabeledInput type="password" id="password" value={password} placeholder="Password"
-                               onChange={setPassword}/>
+                <Input type="password" id="password" value={password} placeholder="Password"
+                              onChange={setPassword}/>
             }
 
             <p className="card-text mt-3 mb-0 text-center">

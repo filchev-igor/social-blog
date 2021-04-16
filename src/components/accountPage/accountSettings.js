@@ -1,28 +1,73 @@
 import React, {useContext, useState} from "react";
-import firebaseAuth from "../../Firebase";
 import firebase from "firebase";
-import {LabeledInput} from "../globalLayout";
 import {AuthUserContext} from "../../contexts";
-import firebaseErrorData from "../../constants/firebaseError";
+import {firebaseAuth} from "../../Firebase";
+import {firebaseAuthErrorData} from "../../constants/firebaseErrors";
+import InputReadonly from "../layout/inputReadonly";
+
+const CONFIRM_TEXT = "Do you wish to update your account?";
 
 const AccountSettings = () => {
     const authUser = useContext(AuthUserContext);
 
+    const [email, setEmail] = useState(authUser.email);
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [newPasswordRepeat, setNewPasswordRepeat] = useState('');
-    const [firebaseError, setFirebaseError] = useState(firebaseErrorData);
+    const [firebaseAuthError, setFirebaseAuthError] = useState(firebaseAuthErrorData);
+    const [isEmailUpdated, setIsEmailUpdated] = useState(false);
     const [isPasswordUpdated, setIsPasswordUpdated] = useState(false);
+    const [fieldToUpdate, setFieldToUpdate] = useState(null);
 
-    const isInvalid =
-        currentPassword === '' ||
-        newPassword !== newPasswordRepeat ||
-        newPassword === '';
+    const handleFieldForUpdate = type => setFieldToUpdate(type);
 
-    const handlePasswordUpdate = e => {
-        const confirmText = "Click yes to change your password";
+    const handleAccountUpdate = e => {
+        e.preventDefault();
 
-        if (!window.confirm(confirmText))
+        if (fieldToUpdate === "email")
+            handleEmailUpdate();
+        else if (fieldToUpdate === "password")
+            handlePasswordUpdate();
+    };
+
+    const handleEmailUpdate = () => {
+        if (!window.confirm(CONFIRM_TEXT))
+            return false;
+
+        const user = firebaseAuth.currentUser;
+
+        const credential = firebase.auth.EmailAuthProvider.credential(authUser.email, currentPassword);
+
+        user.reauthenticateWithCredential(credential)
+            .then(() => {
+                user.sendEmailVerification()
+                    .then(() => {
+                        setEmail(firebaseAuth.currentUser.email);
+                        setCurrentPassword('');
+                        setNewPassword('');
+                        setNewPasswordRepeat('');
+                        setFirebaseAuthError(firebaseAuthErrorData);
+                        setIsEmailUpdated(true);
+                        setIsPasswordUpdated(false);
+                        setFieldToUpdate(null);
+                    })
+                    .catch(error => {
+                        if (isPasswordUpdated)
+                            setIsPasswordUpdated(false);
+
+                        setFirebaseAuthError(error);
+                    });
+            })
+            .catch(error => {
+                if (isPasswordUpdated)
+                    setIsPasswordUpdated(false);
+
+                setFirebaseAuthError(error);
+            });
+    };
+
+    const handlePasswordUpdate = () => {
+        if (!window.confirm(CONFIRM_TEXT))
             return false;
 
         const user = firebaseAuth.currentUser;
@@ -33,43 +78,46 @@ const AccountSettings = () => {
             .then(() => {
                 user.updatePassword(newPassword)
                     .then(() => {
+                        setEmail(firebaseAuth.currentUser.email);
                         setCurrentPassword('');
                         setNewPassword('');
                         setNewPasswordRepeat('');
-                        setFirebaseError(firebaseErrorData);
+                        setFirebaseAuthError(firebaseAuthErrorData);
+                        setIsEmailUpdated(false);
                         setIsPasswordUpdated(true);
+                        setFieldToUpdate(null);
                     })
                     .catch(error => {
                         if (isPasswordUpdated)
                             setIsPasswordUpdated(false);
 
-                        setFirebaseError(error);
-                    })
+                            setFirebaseAuthError(error);
+                    });
             })
             .catch(error => {
                 if (isPasswordUpdated)
                     setIsPasswordUpdated(false);
 
-                setFirebaseError(error);
-            })
-
-        e.preventDefault();
+                setFirebaseAuthError(error);
+            });
     };
 
     return <>
-        <LabeledInput type="password" id="currentPassword" value={currentPassword} placeholder="Type current password" onChange={setCurrentPassword}/>
+        <InputReadonly type="email" id="currentEmail" value={email} placeholder="Type new email" onChange={setEmail} onClick={handleFieldForUpdate} readonly={fieldToUpdate !== "email"}/>
 
-        <LabeledInput type="password" id="newPassword" value={newPassword} placeholder="Type new password" onChange={setNewPassword}/>
+        <InputReadonly type="password" id="currentPassword" value={currentPassword} placeholder="Type current password" onChange={setCurrentPassword} onClick={handleFieldForUpdate} readonly={fieldToUpdate !== "password"}/>
 
-        <LabeledInput type="password" id="newPasswordRepeat" value={newPasswordRepeat} placeholder="Type new password again" onChange={setNewPasswordRepeat}/>
+        <InputReadonly type="password" id="newPassword" value={newPassword} placeholder="Type new password" onChange={setNewPassword} onClick={handleFieldForUpdate} readonly={fieldToUpdate !== "password"}/>
 
-        {firebaseError.code &&
-        <div className="alert alert-danger mt-3" role="alert">{firebaseError.message}</div>}
+        <InputReadonly type="password" id="newPasswordRepeat" value={newPasswordRepeat} placeholder="Type new password again" onChange={setNewPasswordRepeat} onClick={handleFieldForUpdate} readonly={fieldToUpdate !== "password"}/>
 
-        {isPasswordUpdated &&
-        <div className="alert alert-success mt-3" role="alert">Password updated</div>}
+        {firebaseAuthError.code &&
+        <div className="alert alert-danger mt-3" role="alert">{firebaseAuthError.message}</div>}
 
-        <button type="button" disabled={isInvalid} className="btn btn-info mt-3" onClick={handlePasswordUpdate}>Change password</button>
+        {(isEmailUpdated || isPasswordUpdated) &&
+        <div className="alert alert-success mt-3" role="alert">{fieldToUpdate[0].toUpperCase() + fieldToUpdate.slice(1)} was updated!</div>}
+
+        <button type="button" className="btn btn-info mt-3" onClick={handleAccountUpdate}>Change password</button>
     </>;
 };
 

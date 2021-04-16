@@ -1,10 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-    Redirect
-} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import Navbar from '../components/navbar';
 import * as ROUTES from '../constants/routes';
 import Home from "./home";
@@ -12,18 +7,27 @@ import SignIn from "./signIn";
 import SignUp from "./signUp";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import firebaseAuth from "../Firebase";
 import PageDoesNotExist from "./404";
 import PasswordForget from "./passwordForget";
 import Account from "./account";
 import {AuthUserContext} from "../contexts";
 import Admin from "./admin";
+import {firebaseAuth, firebaseFirestore} from "../Firebase";
 
 const App = () => {
     const [authUser, setAuthUser] = useState(null);
 
     useEffect(() => {
-        const userObserver = firebaseAuth.onAuthStateChanged(user => setAuthUser(user));
+        const userObserver = firebaseAuth.onAuthStateChanged(
+            user => {
+                setAuthUser(user);
+
+                if (user) {
+                    firebaseFirestore.collection("users").doc(user.uid)
+                        .onSnapshot(doc => setAuthUser({...user, ...doc.data()}));
+                }
+            }
+        );
 
         return () => userObserver();
     }, []);
@@ -31,29 +35,29 @@ const App = () => {
     return (
         <Router>
             <AuthUserContext.Provider value={authUser}>
-                <Navbar />
+                <Navbar/>
 
                 <Switch>
                     <Route exact path={ROUTES.HOME}>
-                        <Home />
+                        <Home/>
                     </Route>
                     <Route path={ROUTES.SIGN_IN}>
-                        <SignIn />
+                        <SignIn/>
                     </Route>
                     <Route path={ROUTES.SIGN_UP}>
-                        <SignUp />
+                        <SignUp/>
                     </Route>
                     <Route path={ROUTES.ACCOUNT}>
-                        <Account />
+                        <Account/>
                     </Route>
                     <Route path={ROUTES.ADMIN}>
-                        <Admin />
+                        <Admin/>
                     </Route>
                     <Route path={ROUTES.PASSWORD_FORGET}>
-                        <PasswordForget />
+                        <PasswordForget/>
                     </Route>
                     <Route path="*">
-                        <PageDoesNotExist />
+                        <PageDoesNotExist/>
                     </Route>
                 </Switch>
             </AuthUserContext.Provider>

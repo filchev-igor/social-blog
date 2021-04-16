@@ -12,8 +12,11 @@ export const SignInUpPage = props => (
 
             {props.children}
 
-            {props.firebaseError.code &&
-            <div className="alert alert-danger mt-3" role="alert">{props.firebaseError.message}</div>}
+            {props.firebaseAuthError.code &&
+            <div className="alert alert-danger mt-3" role="alert">{props.firebaseAuthError.message}</div>}
+
+            {props.firebaseFirestoreError && props.firebaseFirestoreError.code &&
+            <div className="alert alert-danger mt-3" role="alert">{props.firebaseFirestoreError.message}</div>}
 
             <ul className="list-group list-group-horizontal justify-content-between mt-2">
                 <li className="list-group-item border-0 ps-0">

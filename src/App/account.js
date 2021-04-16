@@ -1,4 +1,4 @@
-import React, {useContext} from "react";
+import React, {useContext, useEffect} from "react";
 import {ContainerFluid} from "../components/globalLayout";
 import {Link, Redirect, Route, Switch, useHistory, useRouteMatch} from "react-router-dom";
 import * as ROUTES from '../constants/routes';
@@ -20,13 +20,14 @@ const Account = () => {
     const {path, url} = useRouteMatch();
 
     const condition = authUser => !!authUser;
-
+    
     if (!condition(authUser)) {
-        history.push(ROUTES.SIGN_IN);
+        //history.push(ROUTES.SIGN_IN);
 
         return null;
     }
 
+    
     return (
         <ContainerFluid>
             <div className="row">
@@ -48,7 +49,7 @@ const Account = () => {
                             <Redirect to={`${path}/${accountLinksName[0]}`}/>
                         </Route>
                         <Route path={`${path}/:pageId`}>
-                            <AccountPage />
+                            <AccountPage/>
                         </Route>
                     </Switch>
                 </div>

@@ -1,10 +1,11 @@
-import {ContainerFluid, LabeledInput, SingleColumn} from "../components/globalLayout";
+import {ContainerFluid, SingleColumn} from "../components/globalLayout";
 import React, {useContext, useState} from "react";
-import firebaseAuth from "../Firebase";
 import {Link, useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
-import firebaseErrorData from "../constants/firebaseError";
 import {AuthUserContext} from "../contexts";
+import {firebaseAuth} from "../Firebase";
+import {firebaseAuthErrorData} from "../constants/firebaseErrors";
+import Input from "../components/layout/input";
 
 const PasswordForget = () => {
     const authUser = useContext(AuthUserContext);
@@ -12,7 +13,7 @@ const PasswordForget = () => {
     const history = useHistory();
 
     const [email, setEmail] = useState('');
-    const [firebaseError, setFirebaseError] = useState(firebaseErrorData);
+    const [firebaseAuthError, setFirebaseAuthError] = useState(firebaseAuthErrorData);
     const [isLinkSent, setIsLinkSent] = useState(false);
 
     const condition = authUser => !!authUser;
@@ -21,10 +22,10 @@ const PasswordForget = () => {
         firebaseAuth.sendPasswordResetEmail(email)
             .then(() => {
                 setEmail('');
-                setFirebaseError(firebaseErrorData);
+                setFirebaseAuthError(firebaseAuthErrorData);
                 setIsLinkSent(true);
             })
-            .catch(error => setFirebaseError(error));
+            .catch(error => setFirebaseAuthError(error));
 
         e.preventDefault();
     };
@@ -44,10 +45,10 @@ const PasswordForget = () => {
 
                 <p className="card-text text-uppercase">type e-mail, which will receive link</p>
 
-                <LabeledInput type="email" id="email" value={email} placeholder="Email" onChange={setEmail}/>
+                <Input type="email" id="email" value={email} placeholder="Email" onChange={setEmail}/>
 
-                {firebaseError.code &&
-                <div className="alert alert-danger mt-3" role="alert">{firebaseError.message}</div>}
+                {firebaseAuthError.code &&
+                <div className="alert alert-danger mt-3" role="alert">{firebaseAuthError.message}</div>}
 
                 {isLinkSent &&
                 <div className="alert alert-success mt-3" role="alert">
@@ -62,7 +63,9 @@ const PasswordForget = () => {
                     </li>
 
                     <li className="list-group-item border-0 pe-0">
-                        <button type="button" disabled={isLinkSent} className="btn btn-info" onClick={handlePasswordRestore}>Send</button>
+                        <button type="button" disabled={isLinkSent} className="btn btn-info"
+                                onClick={handlePasswordRestore}>Send
+                        </button>
                     </li>
                 </ul>
             </SingleColumn>

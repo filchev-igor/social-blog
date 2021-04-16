@@ -16,7 +16,8 @@ const PageDoesNotExist = () => {
 
                 <p>This page does not exist.</p>
 
-                <Link className="btn btn-outline-danger text-uppercase" to={condition(authUser) ? ROUTES.HOME : ROUTES.SIGN_IN}>home page</Link>
+                <Link className="btn btn-outline-danger text-uppercase"
+                      to={condition(authUser) ? ROUTES.HOME : ROUTES.SIGN_IN}>home page</Link>
             </div>
         </div>
     </ContainerFluid>;

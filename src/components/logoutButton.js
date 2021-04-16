@@ -1,5 +1,5 @@
 import React from "react";
-import firebaseAuth from "../Firebase";
+import {firebaseAuth} from "../Firebase";
 
 const LogoutButton = () => {
     const handleLogOut = () => {
