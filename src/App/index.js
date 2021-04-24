@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import Navbar from '../components/navbar';
 import * as ROUTES from '../constants/routes';
@@ -17,22 +17,35 @@ import {firebaseAuth, firebaseFirestore} from "../Firebase";
 const App = () => {
     const [authUser, setAuthUser] = useState(null);
 
+    const authUserRef = useRef(authUser);
+    const authUserUid = authUser ? authUser.uid : null;
+
     useEffect(() => {
-        const authObserver = firebaseAuth.onAuthStateChanged(
-            user => setAuthUser({...authUser, ...user})
-        );
+        const authObserver = firebaseAuth.onAuthStateChanged(user => {
+            const updatedAuthUser = user === null ? null : {...authUserRef.current, ...user};
+
+            setAuthUser(updatedAuthUser);
+            
+            authUserRef.current = updatedAuthUser;
+        });
 
         return () => authObserver();
     }, []);
-
+    
     useEffect(() => {
-        if (authUser) {
-            const firestoreObserver = firebaseFirestore.collection("users").doc(authUser.uid)
-                .onSnapshot(doc => setAuthUser({...authUser, ...doc.data()}));
+        if (authUserUid) {
+            const firestoreOnSnapshot = firebaseFirestore.collection("users").doc(authUserRef.current.uid)
+                .onSnapshot(doc => {
+                    const updatedAuthUser = {...authUserRef.current, ...doc.data()};
 
-            return () => firestoreObserver();
+                    setAuthUser(updatedAuthUser);
+
+                    authUserRef.current = updatedAuthUser;
+                });
+
+            return () => firestoreOnSnapshot();
         }
-    }, []);
+    }, [authUserUid]);
 
     return (
         <Router>

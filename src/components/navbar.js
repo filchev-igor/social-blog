@@ -8,13 +8,15 @@ const Navbar = () => {
 
     const condition = authUser => !!authUser;
 
-    if (!condition(authUser))
-        return <UpperNavbar />;
+    //console.log(authUser);
+    //console.log(condition(authUser));
 
     return <>
         <UpperNavbar />
 
-        <LowerNavbar />
+        {condition(authUser) &&
+            <LowerNavbar/>
+        }
     </>;
 };
 
