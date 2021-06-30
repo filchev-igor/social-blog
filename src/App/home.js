@@ -1,21 +1,19 @@
-import React, {useContext, useEffect} from "react";
-import {AuthUserContext} from "../contexts";
+import React, {useContext, useEffect, useLayoutEffect} from "react";
+import {AuthUserContext, IsAuthUserLoadingContext} from "../contexts";
 import * as ROUTES from '../constants/routes';
 import {useHistory} from "react-router-dom";
 
 const Home = () => {
     const authUser = useContext(AuthUserContext);
+    const isAuthUserLoading = useContext(IsAuthUserLoadingContext);
 
     const history = useHistory();
 
     const condition = authUser => !!authUser;
 
-    useEffect(() => {
-
-    }, []);
-
     if (!condition(authUser)) {
-        //history.push(ROUTES.SIGN_IN);
+        if (!isAuthUserLoading)
+            history.push(ROUTES.SIGN_IN);
 
         return null;
     }

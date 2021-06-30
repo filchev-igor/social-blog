@@ -10,12 +10,14 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import PageDoesNotExist from "./404";
 import PasswordForget from "./passwordForget";
 import Account from "./account";
-import {AuthUserContext} from "../contexts";
+import {AuthUserContext, IsAuthUserLoadingContext} from "../contexts";
 import Admin from "./admin";
 import {firebaseAuth, firebaseFirestore} from "../Firebase";
+import AddPost from "./addPost";
 
 const App = () => {
     const [authUser, setAuthUser] = useState(null);
+    const [isAuthUserLoading, setIsAuthUserLoading] = useState(true);
 
     const authUserRef = useRef(authUser);
     const authUserUid = authUser ? authUser.uid : null;
@@ -25,6 +27,8 @@ const App = () => {
             const updatedAuthUser = user === null ? null : {...authUserRef.current, ...user};
 
             setAuthUser(updatedAuthUser);
+
+            setIsAuthUserLoading(false);
             
             authUserRef.current = updatedAuthUser;
         });
@@ -34,7 +38,7 @@ const App = () => {
     
     useEffect(() => {
         if (authUserUid) {
-            const firestoreOnSnapshot = firebaseFirestore.collection("users").doc(authUserRef.current.uid)
+            const firestoreOnSnapshot = firebaseFirestore.collection("users").doc(authUserUid)
                 .onSnapshot(doc => {
                     const updatedAuthUser = {...authUserRef.current, ...doc.data()};
 
@@ -50,31 +54,36 @@ const App = () => {
     return (
         <Router>
             <AuthUserContext.Provider value={authUser}>
-                <Navbar/>
+                <IsAuthUserLoadingContext.Provider value={isAuthUserLoading}>
+                    <Navbar/>
 
-                <Switch>
-                    <Route exact path={ROUTES.HOME}>
-                        <Home/>
-                    </Route>
-                    <Route path={ROUTES.SIGN_IN}>
-                        <SignIn/>
-                    </Route>
-                    <Route path={ROUTES.SIGN_UP}>
-                        <SignUp/>
-                    </Route>
-                    <Route path={ROUTES.ACCOUNT}>
-                        <Account/>
-                    </Route>
-                    <Route path={ROUTES.ADMIN}>
-                        <Admin/>
-                    </Route>
-                    <Route path={ROUTES.PASSWORD_FORGET}>
-                        <PasswordForget/>
-                    </Route>
-                    <Route path="*">
-                        <PageDoesNotExist/>
-                    </Route>
-                </Switch>
+                    <Switch>
+                        <Route exact path={ROUTES.HOME}>
+                            <Home/>
+                        </Route>
+                        <Route path={ROUTES.SIGN_IN}>
+                            <SignIn/>
+                        </Route>
+                        <Route path={ROUTES.SIGN_UP}>
+                            <SignUp/>
+                        </Route>
+                        <Route path={ROUTES.ACCOUNT}>
+                            <Account/>
+                        </Route>
+                        <Route path={ROUTES.ADMIN}>
+                            <Admin/>
+                        </Route>
+                        <Route path={ROUTES.PASSWORD_FORGET}>
+                            <PasswordForget/>
+                        </Route>
+                        <Route path={ROUTES.ADD_POST}>
+                            <AddPost/>
+                        </Route>
+                        <Route path="*">
+                            <PageDoesNotExist/>
+                        </Route>
+                    </Switch>
+                </IsAuthUserLoadingContext.Provider>
             </AuthUserContext.Provider>
         </Router>
     );

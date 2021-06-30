@@ -2,13 +2,14 @@ import {ContainerFluid, SingleColumn} from "../components/globalLayout";
 import React, {useContext, useState} from "react";
 import {Link, useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
-import {AuthUserContext} from "../contexts";
+import {AuthUserContext, IsAuthUserLoadingContext} from "../contexts";
 import {firebaseAuth} from "../Firebase";
 import {firebaseAuthErrorData} from "../constants/firebaseErrors";
 import Input from "../components/layout/input";
 
 const PasswordForget = () => {
     const authUser = useContext(AuthUserContext);
+    const isAuthUserLoading = useContext(IsAuthUserLoadingContext);
 
     const history = useHistory();
 
@@ -31,7 +32,8 @@ const PasswordForget = () => {
     };
 
     if (condition(authUser)) {
-        history.push(ROUTES.HOME);
+        if (!isAuthUserLoading)
+            history.push(ROUTES.HOME);
 
         return null;
     }

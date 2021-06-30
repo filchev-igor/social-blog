@@ -3,13 +3,14 @@ import {SignInUpPage} from "../components/signInUp";
 import {Link, useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
 import {LabeledInput} from "../components/globalLayout";
-import {AuthUserContext} from "../contexts";
+import {AuthUserContext, IsAuthUserLoadingContext} from "../contexts";
 import {firebaseAuth} from "../Firebase";
 import {firebaseAuthErrorData} from "../constants/firebaseErrors";
 import Input from "../components/layout/input";
 
 const SignIn = () => {
     const authUser = useContext(AuthUserContext);
+    const isAuthUserLoading = useContext(IsAuthUserLoadingContext);
 
     const [hasTypedEmail, setHasTypedEmail] = useState(false);
     const [email, setEmail] = useState('');
@@ -47,8 +48,8 @@ const SignIn = () => {
     }, [firebaseAuthError]);
 
     if (condition(authUser)) {
-        //TODO fix history push. It creates many errors
-        //history.push(ROUTES.HOME);
+        if (!isAuthUserLoading)
+            history.push(ROUTES.HOME);
 
         return null;
     }

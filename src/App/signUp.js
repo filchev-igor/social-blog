@@ -2,8 +2,7 @@ import React, {useContext, useState} from "react";
 import {SignInUpPage} from "../components/signInUp";
 import {useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
-import {LabeledInput} from "../components/globalLayout";
-import {AuthUserContext} from "../contexts";
+import {AuthUserContext, IsAuthUserLoadingContext} from "../contexts";
 import {firebaseAuth, firebaseFirestore} from "../Firebase";
 import * as ROLES from "../constants/roles";
 import {firebaseAuthErrorData, firebaseFirestoreErrorData} from "../constants/firebaseErrors";
@@ -11,6 +10,7 @@ import Input from "../components/layout/input";
 
 const SignUp = () => {
     const authUser = useContext(AuthUserContext);
+    const isAuthUserLoading = useContext(IsAuthUserLoadingContext);
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -50,7 +50,8 @@ const SignUp = () => {
     };
 
     if (condition(authUser)) {
-        history.push(ROUTES.HOME);
+        if (!isAuthUserLoading)
+            history.push(ROUTES.HOME);
 
         return null;
     }
