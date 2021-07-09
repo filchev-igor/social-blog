@@ -72,8 +72,10 @@ const AccountSettings = () => {
     };
 
     return <>
-        <button type="button" className={`btn btn-outline-primary${(fieldToUpdate === 'email') ? ' active' : ''}`} onClick={() => setFieldToUpdate('email')}>E-mail</button>
-        <button type="button" className={`btn btn-outline-primary${(fieldToUpdate === 'password') ? ' active' : ''}`} onClick={() => setFieldToUpdate('password')}>Password</button>
+        <div className="btn-group mb-3" role="group">
+            <button type="button" className={`btn btn-outline-primary${(fieldToUpdate === 'email') ? ' active' : ''}`} onClick={() => setFieldToUpdate('email')}>E-mail</button>
+            <button type="button" className={`btn btn-outline-primary${(fieldToUpdate === 'password') ? ' active' : ''}`} onClick={() => setFieldToUpdate('password')}>Password</button>
+        </div>
 
         {fieldToUpdate === "email" &&
         <Input type="email" id="currentEmail" value={email} placeholder="Type new email" onChange={setEmail}/>
