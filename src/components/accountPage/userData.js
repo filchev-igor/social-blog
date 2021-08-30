@@ -8,8 +8,10 @@ const CONFIRM_TEXT = "Do you wish to update your account?";
 const UserData = () => {
     const authUser = useContext(AuthUserContext);
 
-    const [firstName, setFirstName] = useState(authUser.firstName);
-    const [lastName, setLastName] = useState(authUser.lastName);
+    //TODO mistake in authUser.name update. In some cases it can not be loaded
+
+    const [firstName, setFirstName] = useState(authUser.name !== undefined ? authUser.name.first : "");
+    const [lastName, setLastName] = useState(authUser.name !== undefined ? authUser.name.last : "");
     const [isNameUpdated, setIsNameUpdated] = useState(false);
     const [firestoreError, setFirestoreError] = useState(null);
 
@@ -21,8 +23,10 @@ const UserData = () => {
 
         firebaseFirestore.collection("users").doc(authUser.uid)
             .update({
-                firstName: firstName,
-                lastName: lastName
+                name: {
+                    first: firstName,
+                    last: lastName
+                }
             })
             .then(() => {
                 setFirestoreError(null);

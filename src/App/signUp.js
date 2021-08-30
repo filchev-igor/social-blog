@@ -35,7 +35,12 @@ const SignUp = () => {
                 return firebaseFirestore.collection("users")
                     .doc(cred.user.uid)
                     .set({
-                        role: ROLES.USER
+                        role: ROLES.USER,
+                        name: {
+                            first: "",
+                            last: ""
+                        },
+                        created: firebaseFirestore.Timestamp(new Date())
                     });
             })
             .then(() => {

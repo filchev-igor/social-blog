@@ -1,7 +1,13 @@
 import React, {useState} from "react";
 
-export const Text = () => {
-    const [state, setState] = useState('');
+export const Text = props => {
+    const [state, setState] = useState(props.value);
+
+    const handleChange = e => {
+        setState(e.target.value);
+
+        props.callback(e.target.value, props.index);
+    };
 
     return (
         <textarea
@@ -9,39 +15,55 @@ export const Text = () => {
             rows="3"
             placeholder='Type the text'
             value={state}
-            onChange={e => setState(e.target.value)}>
+            onChange={handleChange}>
 
         </textarea>
     );
 };
 
-export const ImageLink = () => {
+export const ImageLink = props => {
     const [state, setState] = useState('');
+
+    const handleChange = e => {
+        setState(e.target.value);
+
+        props.callback(state, props.index);
+    };
 
     return (
         <input
             className="form-control"
             placeholder="Type link to image"
             value={state}
-            onChange={e => setState(e.target.value)}/>
+            onChange={handleChange}/>
     );
 };
 
-export const VideoLink = () => {
+export const VideoLink = props => {
     const [state, setState] = useState('');
+
+    const handleChange = e => {
+        setState(e.target.value);
+
+        props.callback(state, props.index);
+    };
 
     return (
         <input
             className="form-control"
             placeholder="Type link to video"
             value={state}
-            onChange={e => setState(e.target.value)}/>
+            onChange={handleChange}/>
         );
 };
 
+const PostButton = ({text, onClick}) => (
+    <button type="button" className="btn btn-primary me-2" onClick={onClick}>{text}</button>
+);
+
 export const PostElements = props => {
     const handlerFunc = value => {
-        if (props.array.length)
+        if (props.array.length && props.index)
             props.array.splice(props.index, 1, value);
         else
             props.array.push(value);
@@ -50,19 +72,33 @@ export const PostElements = props => {
     };
 
     return <>
-        <button onClick={() => handlerFunc("text")}>Text</button>
+        <PostButton onClick={() => handlerFunc({
+            type: "text",
+            value: ''
+        })} text="Text"/>
 
-        <button onClick={() => handlerFunc("picture")}>Picture</button>
+        <PostButton onClick={() => handlerFunc({
+            type: "picture",
+            value: ''
+        })} text="Picture"/>
 
-        <button onClick={() => handlerFunc("image link")}>Link to picture</button>
+        <PostButton onClick={() => handlerFunc({
+            type: "image link",
+            value: ''
+        })} text="Link to picture"/>
 
-        <button onClick={() => handlerFunc("video link")}>Video link</button>
+        <PostButton onClick={() => handlerFunc({
+            type: "video link",
+            value: ''
+        })} text="Video link"/>
     </>;
 }
 
 export const AddElementButton = props => {
     const handlerFunc = () => {
-        props.array.splice(props.index, 0, "add element");
+        props.array.splice(props.index, 0, {
+            type: "add element"
+        });
 
         props.setState([...props.array]);
     };
