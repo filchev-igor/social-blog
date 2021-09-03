@@ -3,7 +3,8 @@ import {ContainerFluid} from "../components/globalLayout";
 import {Link, Redirect, Route, Switch, useHistory, useRouteMatch} from "react-router-dom";
 import * as ROUTES from '../constants/routes';
 import AccountPage from "../components/accountPage/accountPage";
-import {AuthUserContext, IsAuthUserLoadingContext} from "../contexts";
+import {IsInitializingContext} from "../contexts";
+import {useSession} from "../hooks";
 
 const accountLinks = [
     ROUTES.ACCOUNT_USER_DATA,
@@ -14,17 +15,19 @@ const accountLinks = [
 const accountLinksName = accountLinks.map(value => value.slice(1));
 
 const Account = () => {
-    const authUser = useContext(AuthUserContext);
-    const isAuthUserLoading = useContext(IsAuthUserLoadingContext);
+    const isInitializing = useContext(IsInitializingContext);
+    const user = useSession();
 
     const history = useHistory();
     const {path, url} = useRouteMatch();
 
     const condition = authUser => !!authUser;
-    
-    if (!condition(authUser)) {
-        if (!isAuthUserLoading)
-            history.push(ROUTES.SIGN_IN);
+
+    if (isInitializing)
+        return null;
+
+    if (!isInitializing && !condition(user)) {
+        history.push(ROUTES.SIGN_IN);
 
         return null;
     }

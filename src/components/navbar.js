@@ -1,20 +1,19 @@
 import React, {useContext} from "react";
-import {AuthUserContext} from "../contexts";
 import UpperNavbar from "./navbar/upperNavbar";
 import LowerNavbar from "./navbar/lowerNavbar";
+import {IsInitializingContext} from "../contexts";
+import {useSession} from "../hooks";
 
 const Navbar = () => {
-    const authUser = useContext(AuthUserContext);
+    const isInitializing = useContext(IsInitializingContext);
+    const user = useSession();
 
     const condition = authUser => !!authUser;
-
-    //console.log(authUser);
-    //console.log(condition(authUser));
 
     return <>
         <UpperNavbar />
 
-        {condition(authUser) &&
+        {!isInitializing && condition(user) &&
             <LowerNavbar/>
         }
     </>;

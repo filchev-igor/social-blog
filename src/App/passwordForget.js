@@ -2,14 +2,15 @@ import {ContainerFluid, SingleColumn} from "../components/globalLayout";
 import React, {useContext, useState} from "react";
 import {Link, useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
-import {AuthUserContext, IsAuthUserLoadingContext} from "../contexts";
-import {firebaseAuth} from "../Firebase";
+import { IsInitializingContext} from "../contexts";
 import {firebaseAuthErrorData} from "../constants/firebaseErrors";
 import Input from "../components/layout/input";
+import {useSession} from "../hooks";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
 const PasswordForget = () => {
-    const authUser = useContext(AuthUserContext);
-    const isAuthUserLoading = useContext(IsAuthUserLoadingContext);
+    const isInitializing = useContext(IsInitializingContext);
+    const user = useSession();
 
     const history = useHistory();
 
@@ -20,20 +21,24 @@ const PasswordForget = () => {
     const condition = authUser => !!authUser;
 
     const handlePasswordRestore = e => {
-        firebaseAuth.sendPasswordResetEmail(email)
+        e.preventDefault();
+
+        const auth = getAuth();
+
+        sendPasswordResetEmail(auth, email)
             .then(() => {
                 setEmail('');
                 setFirebaseAuthError(firebaseAuthErrorData);
                 setIsLinkSent(true);
             })
             .catch(error => setFirebaseAuthError(error));
-
-        e.preventDefault();
     };
 
-    if (condition(authUser)) {
-        if (!isAuthUserLoading)
-            history.push(ROUTES.HOME);
+    if (isInitializing)
+        return null;
+
+    if (!isInitializing && condition(user)) {
+        history.push(ROUTES.HOME);
 
         return null;
     }

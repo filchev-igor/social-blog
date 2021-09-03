@@ -2,15 +2,15 @@ import React, {useContext, useEffect, useState} from "react";
 import {SignInUpPage} from "../components/signInUp";
 import {Link, useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
-import {LabeledInput} from "../components/globalLayout";
-import {AuthUserContext, IsAuthUserLoadingContext} from "../contexts";
-import {firebaseAuth} from "../Firebase";
+import {IsInitializingContext} from "../contexts";
 import {firebaseAuthErrorData} from "../constants/firebaseErrors";
 import Input from "../components/layout/input";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {useSession} from "../hooks";
 
 const SignIn = () => {
-    const authUser = useContext(AuthUserContext);
-    const isAuthUserLoading = useContext(IsAuthUserLoadingContext);
+    const isInitializing = useContext(IsInitializingContext);
+    const user = useSession();
 
     const [hasTypedEmail, setHasTypedEmail] = useState(false);
     const [email, setEmail] = useState('');
@@ -22,7 +22,9 @@ const SignIn = () => {
     const condition = authUser => !!authUser;
 
     const handleLogin = e => {
-        firebaseAuth.signInWithEmailAndPassword(email, password)
+        const auth = getAuth();
+
+        signInWithEmailAndPassword(auth, email, password)
             .then(() => {
                 setHasTypedEmail(false);
                 setEmail('');
@@ -47,9 +49,11 @@ const SignIn = () => {
         }
     }, [firebaseAuthError]);
 
-    if (condition(authUser)) {
-        if (!isAuthUserLoading)
-            history.push(ROUTES.HOME);
+    if (isInitializing)
+        return null;
+
+    if (!isInitializing && condition(user)) {
+        history.push(ROUTES.HOME);
 
         return null;
     }

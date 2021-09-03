@@ -1,16 +1,16 @@
-import React, {useContext, useState} from "react";
-import firebase from "firebase";
-import {AuthUserContext} from "../../contexts";
-import {firebaseAuth} from "../../Firebase";
+import React, {useState} from "react";
 import {firebaseAuthErrorData} from "../../constants/firebaseErrors";
 import Input from "../layout/input";
+import {useSession} from "../../hooks";
+import { getAuth, reauthenticateWithCredential, sendEmailVerification, updatePassword } from "firebase/auth";
 
 const CONFIRM_TEXT = "Do you wish to update your account?";
 
 const AccountSettings = () => {
-    const authUser = useContext(AuthUserContext);
+    //const isInitializing = useContext(IsInitializingContext);
+    const {user} = useSession();
 
-    const [email, setEmail] = useState(authUser.email);
+    const [email, setEmail] = useState(user.email);
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [newPasswordRepeat, setNewPasswordRepeat] = useState('');
@@ -24,15 +24,15 @@ const AccountSettings = () => {
         if (!window.confirm(CONFIRM_TEXT))
             return false;
 
-        const user = firebaseAuth.currentUser;
+        const auth = getAuth();
 
-        const credential = firebase.auth.EmailAuthProvider.credential(authUser.email, currentPassword);
+        const credential = auth.EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
 
-        user.reauthenticateWithCredential(credential)
+        reauthenticateWithCredential(auth.currentUser, credential)
             .then(() => {
-                user.sendEmailVerification()
+                sendEmailVerification(auth.currentUser)
                     .then(() => {
-                        setEmail(firebaseAuth.currentUser.email);
+                        setEmail(auth.currentUser.email);
                         setCurrentPassword('');
                         setNewPassword('');
                         setNewPasswordRepeat('');
@@ -50,15 +50,15 @@ const AccountSettings = () => {
         if (!window.confirm(CONFIRM_TEXT))
             return false;
 
-        const user = firebaseAuth.currentUser;
+        const auth = getAuth();
 
-        const credential = firebase.auth.EmailAuthProvider.credential(authUser.email, currentPassword);
+        const credential = auth.EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
 
-        user.reauthenticateWithCredential(credential)
+        reauthenticateWithCredential(auth.currentUser, credential)
             .then(() => {
-                user.updatePassword(newPassword)
+                updatePassword(auth.currentUser, newPassword)
                     .then(() => {
-                        setEmail(firebaseAuth.currentUser.email);
+                        setEmail(auth.currentUser.email);
                         setCurrentPassword('');
                         setNewPassword('');
                         setNewPasswordRepeat('');

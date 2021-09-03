@@ -1,8 +1,10 @@
 import React from "react";
-import {firebaseAuth} from "../Firebase";
+import { getAuth, signOut } from "firebase/auth";
 
 const LogoutButton = () => {
-    const handleLogOut = () => firebaseAuth.signOut();
+    const auth = getAuth();
+
+    const handleLogOut = () => signOut(auth);
 
     return (
         <button className="btn btn-outline-danger" onClick={handleLogOut}>Log out</button>

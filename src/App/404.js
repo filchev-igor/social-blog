@@ -1,11 +1,11 @@
-import React, {useContext} from "react";
+import React from "react";
 import {ContainerFluid} from "../components/globalLayout";
 import {Link} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
-import {AuthUserContext} from "../contexts";
+import {useSession} from "../hooks";
 
 const PageDoesNotExist = () => {
-    const authUser = useContext(AuthUserContext);
+    const user = useSession();
 
     const condition = authUser => !!authUser;
 
@@ -17,7 +17,7 @@ const PageDoesNotExist = () => {
                 <p>This page does not exist.</p>
 
                 <Link className="btn btn-outline-danger text-uppercase"
-                      to={condition(authUser) ? ROUTES.HOME : ROUTES.SIGN_IN}>home page</Link>
+                      to={condition(user) ? ROUTES.HOME : ROUTES.SIGN_IN}>home page</Link>
             </div>
         </div>
     </ContainerFluid>;

@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React from "react";
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import Navbar from '../components/navbar';
 import * as ROUTES from '../constants/routes';
@@ -10,51 +10,18 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import PageDoesNotExist from "./404";
 import PasswordForget from "./passwordForget";
 import Account from "./account";
-import {AuthUserContext, IsAuthUserLoadingContext} from "../contexts";
 import Admin from "./admin";
-import {firebaseAuth, firebaseFirestore} from "../Firebase";
 import AddPost from "./addPost";
+import {useAuth} from "../hooks";
+import {IsInitializingContext, UserContext} from "../contexts";
 
 const App = () => {
-    const [authUser, setAuthUser] = useState(null);
-    const [isAuthUserLoading, setIsAuthUserLoading] = useState(true);
-
-    const authUserRef = useRef(authUser);
-    const authUserUid = authUser ? authUser.uid : null;
-
-    useEffect(() => {
-        const authObserver = firebaseAuth.onAuthStateChanged(user => {
-            const updatedAuthUser = user === null ? null : {...authUserRef.current, ...user};
-
-            setAuthUser(updatedAuthUser);
-
-            setIsAuthUserLoading(false);
-            
-            authUserRef.current = updatedAuthUser;
-        });
-
-        return () => authObserver();
-    }, []);
-    
-    useEffect(() => {
-        if (authUserUid) {
-            const firestoreOnSnapshot = firebaseFirestore.collection("users").doc(authUserUid)
-                .onSnapshot(doc => {
-                    const updatedAuthUser = {...authUserRef.current, ...doc.data()};
-
-                    setAuthUser(updatedAuthUser);
-
-                    authUserRef.current = updatedAuthUser;
-                });
-
-            return () => firestoreOnSnapshot();
-        }
-    }, [authUserUid]);
+    const {isInitializing, user} = useAuth();
 
     return (
         <Router>
-            <AuthUserContext.Provider value={authUser}>
-                <IsAuthUserLoadingContext.Provider value={isAuthUserLoading}>
+            <UserContext.Provider value={{user}}>
+                <IsInitializingContext.Provider value={isInitializing}>
                     <Navbar/>
 
                     <Switch>
@@ -83,8 +50,8 @@ const App = () => {
                             <PageDoesNotExist/>
                         </Route>
                     </Switch>
-                </IsAuthUserLoadingContext.Provider>
-            </AuthUserContext.Provider>
+                </IsInitializingContext.Provider>
+            </UserContext.Provider>
         </Router>
     );
 }

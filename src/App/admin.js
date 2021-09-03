@@ -1,19 +1,23 @@
-import React, {useContext} from "react";
+import {useContext} from "react";
 import {useHistory} from "react-router-dom";
-import {AuthUserContext, IsAuthUserLoadingContext} from "../contexts";
+import {IsInitializingContext} from "../contexts";
 import * as ROUTES from "../constants/routes";
+import {useSession} from "../hooks";
 
 const Admin = () => {
-    const authUser = useContext(AuthUserContext);
-    const isAuthUserLoading = useContext(IsAuthUserLoadingContext);
+    const isInitializing = useContext(IsInitializingContext);
+    const user = useSession();
 
     const history = useHistory();
 
     const condition = authUser => !!authUser;
 
-    if (!condition(authUser)) {
-        if (!isAuthUserLoading)
-            history.push(ROUTES.SIGN_IN);
+    if (isInitializing)
+        return null;
+
+    //TODO correct admin role
+    if (!isInitializing && !condition(user)) {
+        history.push(ROUTES.SIGN_IN);
 
         return null;
     }

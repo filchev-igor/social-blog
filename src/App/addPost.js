@@ -8,27 +8,52 @@ import {
     VideoLink
 } from "../components/addPost/elements";
 import {ContainerFluid} from "../components/globalLayout";
-import {AuthUserContext} from "../contexts";
-import {firebaseFirestore} from "../Firebase";
+import {IsInitializingContext} from "../contexts";
+import {useEditedPostCollection, useSession, useUserCollection} from "../hooks";
+import * as ROUTES from "../constants/routes";
+import {useHistory} from "react-router-dom";
+import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import {firebaseDb} from "../Firebase";
+
+const DELETE_DRAFT = "Do you want to delete the draft?";
+const PUBLISH_POST = "Do you want to publish the draft?";
+
+const PUBLISH_POST_SUCCESS = "Post was published";
 
 const AddPost = () => {
-    const authUser = useContext(AuthUserContext);
+    const isInitializing = useContext(IsInitializingContext);
+    const user = useSession();
 
     const [title, setTitle] = useState('');
     const [contentElements, setContentElements] = useState([]);
+    const [docId, setDocId] = useState(null);
+    const [isPostBeingManipulated, setIsPostBeingManipulated] = useState(false);
+    const [hasPostBeingPublished, setHasPostBeingPublished] = useState(false);
+
+    const {isLoadingUserCollection, userCollection} = useUserCollection(isInitializing ? "" : user.uid);
+    const {isDraftCheckOver, docId: existingDocId, data} = useEditedPostCollection(isInitializing ? "" : user.uid);
 
     //TODO correct name later
     const userDataRef = useRef({
-        firstName: "Jane",
-        lastName: "Doe",
+        firstName: "",
+        lastName: "",
         uid: null
     });
 
-    const docIdRef = useRef('');
+    const history = useHistory();
+
+    const condition = authUser => !!authUser;
+
+    const isTitleEmpty = !title;
+    const isPostEmpty = !contentElements.length;
+
     /*
     //Callback function, which writes state of the field to the contentElements state
      */
-    const editContentElementValue = (value, index) => {
+    const handleEditContentElement = (value, index) => {
+        if (!isDraftCheckOver || isPostBeingManipulated)
+            return;
+
         const object = {
             type: contentElements[index].type,
             value: value
@@ -41,14 +66,86 @@ const AddPost = () => {
         setContentElements(array);
     };
 
-    userDataRef.current.uid = authUser ? authUser.uid : null;
+    userDataRef.current.firstName = isLoadingUserCollection ? "" : userCollection.name.first;
+    userDataRef.current.lastName = isLoadingUserCollection ? "" : userCollection.name.last;
+    userDataRef.current.uid = user ? user.uid : null;
+
+    const handleTitleChange = e => {
+        if (!isDraftCheckOver || isPostBeingManipulated)
+            return;
+
+        setTitle(e.target.value);
+    };
+
+    const handlePostDelete = () => {
+        if (isTitleEmpty && isPostEmpty)
+            return;
+        
+        if (!window.confirm(DELETE_DRAFT))
+            return;
+
+        setIsPostBeingManipulated(true);
+
+        (async() => {
+            await deleteDoc(doc(firebaseDb, "posts", docId));
+        })().then(() => {
+            setTitle('');
+            setContentElements([]);
+            setDocId(null);
+
+            setIsPostBeingManipulated(false);
+        });
+    };
+
+    const handlePublishPost = () => {
+        if (isTitleEmpty && isPostEmpty)
+            return;
+        
+        if (!window.confirm(PUBLISH_POST))
+            return;
+
+        setIsPostBeingManipulated(true);
+
+        (async() => {
+            const docData = {
+                "isPublished": true,
+                "dates.published": new Date()
+            };
+
+            const docRef = doc(firebaseDb, "posts", docId);
+
+            await updateDoc(docRef, docData);
+        })().then(() => {
+            setTitle('');
+            setContentElements([]);
+            setDocId(null);
+
+            setIsPostBeingManipulated(false);
+            setHasPostBeingPublished(true);
+        });
+    };
+
+    useEffect(() => {
+        if (isDraftCheckOver && existingDocId) {
+            setDocId(existingDocId);
+            setTitle(data.title);
+            setContentElements(data.structure);
+        }
+    }, [data, existingDocId, isDraftCheckOver]);
 
     useEffect(() => {
         const {firstName, lastName, uid} = userDataRef.current;
-        const docId = docIdRef.current;
+
+        if (isTitleEmpty && isPostEmpty)
+            return;
+        
+        if (isPostBeingManipulated)
+            return;
 
         //TODO Take a look at the error field (it is empty!)
-        if (docIdRef.current === '') {
+        const createPost = async() => {
+            setIsPostBeingManipulated(true);
+
             const docData = {
                 title: title,
                 creator: {
@@ -59,28 +156,48 @@ const AddPost = () => {
                 dates: {
                     created: new Date()
                 },
-                structure: contentElements
+                structure: contentElements,
+                isPublished: false
             };
 
-            firebaseFirestore.collection("posts")
-                .add(docData)
-                .then(docRef => docIdRef.current = docRef.id)
-                .catch(error => {
+            const docRef = await addDoc(collection(firebaseDb, "posts"), docData);
 
-                });
-        }
-        else {
+            setDocId(docRef.id);
+        };
+
+        const editPost = async() => {
             const docData = {
                 title: title,
                 structure: contentElements
             };
 
-            firebaseFirestore.collection("posts").doc(docId)
-                .update(docData)
-                .then()
-                .catch(error => {});
+            const docRef = doc(firebaseDb, "posts", docId);
+
+            await updateDoc(docRef, docData);
+        };
+
+        try {
+            if (!docId)
+                createPost().then(() => {
+                    setIsPostBeingManipulated(false);
+                    setHasPostBeingPublished(false);
+                });
+            else
+                editPost().then();
         }
-    }, [title, contentElements]);
+        catch (e) {
+
+        }
+    }, [title, contentElements, docId, isPostBeingManipulated, isTitleEmpty, isPostEmpty]);
+
+    if (isInitializing)
+        return null;
+
+    if (!isInitializing && !condition(user)) {
+        history.push(ROUTES.HOME);
+
+        return null;
+    }
 
     return (
         <ContainerFluid>
@@ -94,12 +211,25 @@ const AddPost = () => {
                         className="form-control"
                         placeholder='Title of your post'
                         value={title}
-                        onChange={e => setTitle(e.target.value)}/>
+                        onChange={handleTitleChange}/>
                 </div>
 
                 <div className="col-1">
 
                 </div>
+
+                {hasPostBeingPublished && <>
+                <div className="col-1">
+
+                </div>
+
+                <div className="col-10">
+                    <div className="alert alert-success mt-3" role="alert">{PUBLISH_POST_SUCCESS}</div>
+                </div>
+
+                <div className="col-1">
+
+                </div> </>}
 
                 {contentElements.map((value, index) => {
                     return <Fragment key={"Add element " + index}>
@@ -120,7 +250,7 @@ const AddPost = () => {
                             <Text
                                 index={index}
                                 value={value.value}
-                                callback={editContentElementValue}/>}
+                                callback={handleEditContentElement}/>}
 
                             {value.type === "picture"}
 
@@ -128,13 +258,13 @@ const AddPost = () => {
                             <ImageLink
                                 index={index}
                                 value={value.value}
-                                callback={editContentElementValue}/>}
+                                callback={handleEditContentElement}/>}
 
                             {value.type === "video link" &&
                             <VideoLink
                                 index={index}
                                 value={value.value}
-                                callback={editContentElementValue}/>}
+                                callback={handleEditContentElement}/>}
 
                             {value.type === "add element" &&
                             <PostElements setState={setContentElements} array={contentElements} index={index}/>}
@@ -163,9 +293,9 @@ const AddPost = () => {
                 </div>
 
                 <div className="col-10">
-                    <button>publish</button>
+                    <button onClick={handlePublishPost}>publish</button>
 
-                    <button>delete the draft</button>
+                    <button onClick={handlePostDelete}>delete the draft</button>
 
                     15:34
 

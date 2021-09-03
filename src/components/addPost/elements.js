@@ -22,7 +22,7 @@ export const Text = props => {
 };
 
 export const ImageLink = props => {
-    const [state, setState] = useState('');
+    const [state, setState] = useState(props.value);
 
     const handleChange = e => {
         setState(e.target.value);
@@ -40,7 +40,7 @@ export const ImageLink = props => {
 };
 
 export const VideoLink = props => {
-    const [state, setState] = useState('');
+    const [state, setState] = useState(props.value);
 
     const handleChange = e => {
         setState(e.target.value);

@@ -1,4 +1,7 @@
-import React from "react";
+import {createContext} from "react";
 
-export const AuthUserContext = React.createContext(null);
-export const IsAuthUserLoadingContext = React.createContext(null);
+export const IsInitializingContext = createContext(true);
+
+export const UserContext = createContext({
+    user: null
+});

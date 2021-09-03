@@ -2,15 +2,18 @@ import React, {useContext, useState} from "react";
 import {SignInUpPage} from "../components/signInUp";
 import {useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
-import {AuthUserContext, IsAuthUserLoadingContext} from "../contexts";
-import {firebaseAuth, firebaseFirestore} from "../Firebase";
+import {IsInitializingContext} from "../contexts";
 import * as ROLES from "../constants/roles";
 import {firebaseAuthErrorData, firebaseFirestoreErrorData} from "../constants/firebaseErrors";
 import Input from "../components/layout/input";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {doc, setDoc} from "firebase/firestore";
+import {firebaseDb} from "../Firebase";
+import {useSession} from "../hooks";
 
 const SignUp = () => {
-    const authUser = useContext(AuthUserContext);
-    const isAuthUserLoading = useContext(IsAuthUserLoadingContext);
+    const isInitializing = useContext(IsInitializingContext);
+    const user = useSession();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -30,18 +33,23 @@ const SignUp = () => {
     const handleCreateUser = e => {
         e.preventDefault();
 
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
-            .then(cred => {
-                return firebaseFirestore.collection("users")
-                    .doc(cred.user.uid)
-                    .set({
+        const auth = getAuth();
+
+        createUserWithEmailAndPassword(auth, email, password)
+            .then(userCredential => async() => {
+                try {
+                    await setDoc(doc(firebaseDb, "users", userCredential.user.uid), {
                         role: ROLES.USER,
                         name: {
                             first: "",
                             last: ""
                         },
-                        created: firebaseFirestore.Timestamp(new Date())
+                        creationTime: new Date()
                     });
+                }
+                catch(error) {
+                    setFirebaseFirestoreError(error)
+                }
             })
             .then(() => {
                 setEmail('');
@@ -54,9 +62,11 @@ const SignUp = () => {
             .catch(error => setFirebaseAuthError(error));
     };
 
-    if (condition(authUser)) {
-        if (!isAuthUserLoading)
-            history.push(ROUTES.HOME);
+    if (isInitializing)
+        return null;
+
+    if (!isInitializing && condition(user)) {
+        history.push(ROUTES.HOME);
 
         return null;
     }
