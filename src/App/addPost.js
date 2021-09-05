@@ -30,8 +30,10 @@ const AddPost = () => {
     const [isPostBeingManipulated, setIsPostBeingManipulated] = useState(false);
     const [hasPostBeingPublished, setHasPostBeingPublished] = useState(false);
 
-    const {isLoadingUserCollection, userCollection} = useUserCollection(isInitializing ? "" : user.uid);
-    const {isDraftCheckOver, docId: existingDocId, data} = useEditedPostCollection(isInitializing ? "" : user.uid);
+    const {isLoadingUserCollection, userCollection} = useUserCollection(isInitializing ? "" :
+        user ? user.uid : "");
+    const {isDraftCheckOver, docId: existingDocId, data} = useEditedPostCollection(isInitializing ? "" :
+        user ? user.uid : "");
 
     //TODO correct name later
     const userDataRef = useRef({
@@ -98,7 +100,7 @@ const AddPost = () => {
     };
 
     const handlePublishPost = () => {
-        if (isTitleEmpty && isPostEmpty)
+        if (isTitleEmpty || isPostEmpty)
             return;
         
         if (!window.confirm(PUBLISH_POST))
@@ -138,7 +140,7 @@ const AddPost = () => {
 
         if (isTitleEmpty && isPostEmpty)
             return;
-        
+
         if (isPostBeingManipulated)
             return;
 
@@ -157,7 +159,12 @@ const AddPost = () => {
                     created: new Date()
                 },
                 structure: contentElements,
-                isPublished: false
+                isPublished: false,
+                rating: 0,
+                likedBy : {
+                    positively: [],
+                    negatively: []
+                }
             };
 
             const docRef = await addDoc(collection(firebaseDb, "posts"), docData);
@@ -194,7 +201,7 @@ const AddPost = () => {
         return null;
 
     if (!isInitializing && !condition(user)) {
-        history.push(ROUTES.HOME);
+        history.push(ROUTES.SIGN_IN);
 
         return null;
     }

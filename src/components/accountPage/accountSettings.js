@@ -8,7 +8,7 @@ const CONFIRM_TEXT = "Do you wish to update your account?";
 
 const AccountSettings = () => {
     //const isInitializing = useContext(IsInitializingContext);
-    const {user} = useSession();
+    const user = useSession();
 
     const [email, setEmail] = useState(user.email);
     const [currentPassword, setCurrentPassword] = useState('');

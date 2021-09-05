@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState} from "react";
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {UserContext} from "../contexts";
-import { doc, onSnapshot, query, collection, where, getDocs } from "firebase/firestore";
+import { doc, onSnapshot, query, collection, where, getDocs, orderBy, limit } from "firebase/firestore";
 import {firebaseDb} from "../Firebase";
 
 export const useSession = () => {
@@ -102,6 +102,45 @@ export const useEditedPostCollection = uid => {
             data: arrayData[0]
         }));
     }, [uid]);
+
+    return state;
+};
+
+export const usePostsCollection = () => {
+    const [state, setState] = useState([]);
+
+    useEffect(() => {
+        const postsRef = collection(firebaseDb, "posts");
+
+        const queryRef = query(
+            postsRef,
+            where("isPublished", "==", true),
+            orderBy("dates.published", "desc"),
+            limit(20));
+
+        const unsibscribe = onSnapshot(queryRef, querySnapshot => {
+            const posts = [];
+
+            querySnapshot.forEach(doc => {
+                const created = doc.data().dates.created;
+                const published = doc.data().dates.published;
+
+                const object = {
+                    id : doc.id,
+                    data : doc.data()
+                };
+
+                object.data.dates.created = new Date(Number(created));
+                object.data.dates.published = new Date(Number(published));
+
+                posts.push(object);
+            });
+
+            setState(posts);
+        })
+
+        return () => unsibscribe();
+    }, []);
 
     return state;
 };
