@@ -3,6 +3,7 @@ import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {UserContext} from "../contexts";
 import { doc, onSnapshot, query, collection, where, getDocs, orderBy, limit } from "firebase/firestore";
 import {firebaseDb} from "../Firebase";
+import * as moment from "moment";
 
 export const useSession = () => {
     const {user} = useContext(UserContext);
@@ -75,12 +76,12 @@ export const useEditedPostCollection = uid => {
             try {
                 const postsRef = collection(firebaseDb, "posts");
 
-                const queryRef = query(
+                const q = query(
                     postsRef,
                     where("creator.uid", "==", uid),
                     where("isPublished", "==", false));
 
-                const querySnapshot = await getDocs(queryRef);
+                const querySnapshot = await getDocs(q);
 
                 querySnapshot.forEach(doc => {
                     arrayId.push(doc.id);
@@ -118,29 +119,180 @@ export const usePostsCollection = () => {
             orderBy("dates.published", "desc"),
             limit(20));
 
-        const unsibscribe = onSnapshot(queryRef, querySnapshot => {
+        const unsubscribe = onSnapshot(queryRef, querySnapshot => {
             const posts = [];
 
             querySnapshot.forEach(doc => {
-                const created = doc.data().dates.created;
-                const published = doc.data().dates.published;
+                const data = doc.data();
 
-                const object = {
+                const creationDate = new Date(data.dates.created.seconds * 1000);
+                const publishingDate = new Date(data.dates.published.seconds * 1000);
+
+                const obj = {
                     id : doc.id,
-                    data : doc.data()
+                    data : data
                 };
 
-                object.data.dates.created = new Date(Number(created));
-                object.data.dates.published = new Date(Number(published));
+                obj.data.dates.created = moment(creationDate).fromNow();
+                obj.data.dates.published = moment(publishingDate).fromNow();
 
-                posts.push(object);
+                posts.push(obj);
             });
 
             setState(posts);
-        })
+        });
 
-        return () => unsibscribe();
+        return () => unsubscribe();
     }, []);
+
+    return state;
+};
+
+export const useAllUsersCollection = () => {
+    const [state, setState] = useState([]);
+
+    useEffect(() => {
+        const q = query(collection(firebaseDb, "users"), where("role", "==", "user"));
+        const unsubscribe = onSnapshot(q, querySnapshot => {
+            const users = [];
+
+            querySnapshot.forEach(doc => {
+                const obj = doc.data();
+
+                obj.uid = doc.id;
+
+                users.push(obj);
+            });
+
+            setState(users);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    return state;
+};
+
+export const useUserPostsId = uid => {
+    const [state, setState] = useState([]);
+
+    useEffect(() => {
+        (async () => {
+            const array = [];
+            
+            const q = query(collection(firebaseDb, "posts"), where("creator.uid", "==", uid));
+
+            const querySnapshot = await getDocs(q);
+
+            querySnapshot.forEach(doc => array.push(doc.id));
+            
+            return array;
+        })().then(array => setState(array));
+    }, [uid]);
+
+    return state;
+};
+
+export const usePost = postId => {
+    const inputData = {
+        firstName: '',
+        lastName: '',
+        date: '',
+        title: '',
+        rating: '',
+        structure: [],
+        likedBy: {
+            negatively: [],
+            positively: []
+        }
+    };
+
+    const [state, setState] = useState({
+        isPostChecking: true,
+        isPostExisting: false,
+        data: inputData
+    });
+
+    useEffect(() => {
+        const obj = {
+            firstName: '',
+            lastName: '',
+            date: '',
+            title: '',
+            rating: '',
+            structure: [],
+            likedBy: {
+                negatively: [],
+                positively: []
+            }
+        };
+
+        const postsRef = doc(firebaseDb, "posts", postId);
+
+        const unsubscribe = onSnapshot(postsRef, doc => {
+            const data = doc.data();
+
+            if (data && data.isPublished) {
+                const date = new Date(data.dates.published.seconds * 1000);
+
+                obj.firstName = data.creator.first;
+                obj.lastName = data.creator.last;
+                obj.date = moment(date).fromNow();
+                obj.title = data.title;
+                obj.rating = data.rating;
+                obj.structure = data.structure;
+                obj.likedBy.negatively = data.likedBy.negatively;
+                obj.likedBy.positively = data.likedBy.positively;
+            }
+
+            setState({
+                isPostChecking: false,
+                isPostExisting: !!data && data.isPublished,
+                data: obj
+            });
+        });
+
+        return () => unsubscribe();
+    }, [postId]);
+
+    return state;
+};
+
+export const useCommentsCollection = postId => {
+    const [state, setState] = useState([]);
+
+    useEffect(() => {
+        const commentsRef = collection(firebaseDb, "comments");
+
+        const queryRef = query(
+            commentsRef,
+            where("postId", "==", postId),
+            orderBy("date"),
+            limit(20));
+
+        const unsubscribe = onSnapshot(queryRef, querySnapshot => {
+            const comments = [];
+
+            querySnapshot.forEach(doc => {
+                const data = doc.data();
+
+                const object = {
+                    id : doc.id,
+                    data : data
+                };
+
+                const date = new Date(data.date.seconds * 1000);
+
+                object.data.date = moment(date).fromNow();
+
+                comments.push(object);
+            });
+
+            setState(comments);
+        });
+
+        return () => unsubscribe();
+    }, [postId]);
 
     return state;
 };

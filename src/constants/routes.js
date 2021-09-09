@@ -8,6 +8,7 @@ export const ACCOUNT = '/account';
 export const ADMIN = '/admin';
 export const PASSWORD_FORGET = '/password-forget';
 export const ADD_POST = '/add-post';
+export const POST = '/post';
 
 /*
 Account routes
@@ -15,3 +16,4 @@ Account routes
 export const ACCOUNT_USER_DATA = "/user-data";
 export const ACCOUNT_SETTINGS = "/account-settings";
 export const ACCOUNT_INTERFACE_SETTINGS = "/interface-settings";
+export const DELETE_ACCOUNT = "/delete-account";

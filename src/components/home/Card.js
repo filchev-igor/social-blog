@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import {firebaseDb} from "../../Firebase";
 import {useSession} from "../../hooks";
+import {Link} from "react-router-dom";
 
 const Card = props => {
     const {
@@ -65,13 +66,15 @@ const Card = props => {
     };
 
     return (
-        <div className="card">
+        <div className="card mb-4">
             <div className="card-header">
                 {`${firstName} ${lastName} ${date}`}
             </div>
 
             <div className="card-body">
-                <h5 className="card-title">{title}</h5>
+                <h5 className="card-title">
+                    <Link className="text-decoration-none link-dark" to={`post/${postId}`}>{title}</Link>
+                </h5>
 
                 {postStructure}
             </div>

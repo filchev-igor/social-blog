@@ -2,7 +2,7 @@ import React from "react";
 
 const Input = props => {
     const {
-        type,
+        type = "text",
         id,
         value,
         placeholder,
@@ -11,13 +11,17 @@ const Input = props => {
 
     const handleChange = e => onChange(e.target.value);
 
-    return <>
-        <label htmlFor={id} className="form-label">
+    return <div className="form-floating mb-3">
+        <input
+            type={type}
+            className="form-control"
+            id={id} value={value}
+            onChange={handleChange}
+            placeholder={placeholder}/>
 
-        </label>
+        <label htmlFor={id}>{placeholder}</label>
 
-        <input type={type} className="form-control" id={id} value={value} onChange={handleChange} placeholder={placeholder} />
-        </>
+        </div>
 };
 
 export default Input;

@@ -89,7 +89,15 @@ const AddPost = () => {
         setIsPostBeingManipulated(true);
 
         (async() => {
+            const usersData = {
+                hasDraft: false
+            };
+
             await deleteDoc(doc(firebaseDb, "posts", docId));
+
+            const usersRef = doc(firebaseDb, "users", user.uid);
+
+            await updateDoc(usersRef, usersData);
         })().then(() => {
             setTitle('');
             setContentElements([]);
@@ -109,14 +117,23 @@ const AddPost = () => {
         setIsPostBeingManipulated(true);
 
         (async() => {
-            const docData = {
+            const postsData = {
                 "isPublished": true,
                 "dates.published": new Date()
             };
 
-            const docRef = doc(firebaseDb, "posts", docId);
+            const usersData = {
+                publishedPosts: userCollection.publishedPosts + 1,
+                hasDraft: false
+            };
 
-            await updateDoc(docRef, docData);
+            const postsRef = doc(firebaseDb, "posts", docId);
+
+            await updateDoc(postsRef, postsData);
+
+            const usersRef = doc(firebaseDb, "users", user.uid);
+
+            await updateDoc(usersRef, usersData);
         })().then(() => {
             setTitle('');
             setContentElements([]);
@@ -148,7 +165,7 @@ const AddPost = () => {
         const createPost = async() => {
             setIsPostBeingManipulated(true);
 
-            const docData = {
+            const postsData = {
                 title: title,
                 creator: {
                     first: firstName,
@@ -167,9 +184,17 @@ const AddPost = () => {
                 }
             };
 
-            const docRef = await addDoc(collection(firebaseDb, "posts"), docData);
+            const usersData = {
+                hasDraft: true
+            };
 
-            setDocId(docRef.id);
+            const postRef = await addDoc(collection(firebaseDb, "posts"), postsData);
+
+            const usersRef = doc(firebaseDb, "users", user.uid);
+
+            await updateDoc(usersRef, usersData);
+
+            setDocId(postRef.id);
         };
 
         const editPost = async() => {

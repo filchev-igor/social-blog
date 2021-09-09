@@ -9,7 +9,8 @@ import {useSession} from "../hooks";
 const accountLinks = [
     ROUTES.ACCOUNT_USER_DATA,
     ROUTES.ACCOUNT_SETTINGS,
-    ROUTES.ACCOUNT_INTERFACE_SETTINGS
+    ROUTES.ACCOUNT_INTERFACE_SETTINGS,
+    ROUTES.DELETE_ACCOUNT
 ];
 
 const accountLinksName = accountLinks.map(value => value.slice(1));
@@ -32,7 +33,6 @@ const Account = () => {
         return null;
     }
 
-    
     return (
         <ContainerFluid>
             <div className="row">

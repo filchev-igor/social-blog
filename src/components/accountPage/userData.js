@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 import Input from "../layout/input";
-import {useSession, useUserCollection} from "../../hooks";
+import {useSession, useUserCollection, useUserPostsId} from "../../hooks";
 import { doc, updateDoc } from "firebase/firestore";
 import {firebaseDb} from "../../Firebase";
 import {IsInitializingContext} from "../../contexts";
@@ -13,12 +13,11 @@ const UserData = () => {
 
     const {isLoadingUserCollection, userCollection} = useUserCollection(isInitializing ? "" : user.uid);
 
-    //TODO mistake in authUser.name update. In some cases it can not be loaded
+    const userPostsId = useUserPostsId(user.uid);
 
     const [firstName, setFirstName] = useState(isLoadingUserCollection ? "" : userCollection.name.first);
     const [lastName, setLastName] = useState(isLoadingUserCollection ? "" : userCollection.name.last);
     const [isNameUpdated, setIsNameUpdated] = useState(false);
-    const [firestoreError, setFirestoreError] = useState(null);
 
     const nameRef = useRef({
         first: "",
@@ -35,28 +34,29 @@ const UserData = () => {
         if (!window.confirm(UPDATE_ACCOUNT))
             return;
 
-        const updateUserCollection = async() => {
-            const docRef = doc(firebaseDb, "users", user.uid);
+        (async() => {
+            const usersData = {
+                name: {
+                    first: firstName,
+                    last: lastName
+                }
+            };
 
-            try {
-                await updateDoc(docRef, {
-                    name: {
-                        first: firstName,
-                        last: lastName
-                    }
-                });
+            const postsData = {
+                "creator.first": firstName,
+                "creator.last": lastName
             }
-            catch(error) {
-                setIsNameUpdated(false);
-                setFirestoreError(error);
-            }
-        };
 
-        updateUserCollection()
-            .then(() => {
-                setFirestoreError(null);
-                setIsNameUpdated(true);
-            });
+            const usersRef = doc(firebaseDb, "users", user.uid);
+
+            await updateDoc(usersRef, usersData);
+
+            for (const id of userPostsId) {
+                const postsRef = doc(firebaseDb, "posts", id);
+
+                await updateDoc(postsRef, postsData);
+            }
+        })().then(() => setIsNameUpdated(true));
     };
     
     useEffect(() => {
@@ -72,9 +72,6 @@ const UserData = () => {
         <Input id="lastName" value={lastName} placeholder="Type your last name" onChange={setLastName}/>
 
         <button type="button" className="btn btn-info mt-3" onClick={handleUserDataUpdate}>Update your data</button>
-
-        {firestoreError && firestoreError.code &&
-        <div className="alert alert-danger mt-3" role="alert">{firestoreError.message}</div>}
 
         {isNameUpdated &&
         <div className="alert alert-success mt-3" role="alert">Your name was updated!</div>}

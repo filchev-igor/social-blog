@@ -2,12 +2,11 @@ import React, {useState} from "react";
 import {firebaseAuthErrorData} from "../../constants/firebaseErrors";
 import Input from "../layout/input";
 import {useSession} from "../../hooks";
-import { getAuth, reauthenticateWithCredential, sendEmailVerification, updatePassword } from "firebase/auth";
+import { getAuth, reauthenticateWithCredential, sendEmailVerification, updatePassword, EmailAuthProvider } from "firebase/auth";
 
 const CONFIRM_TEXT = "Do you wish to update your account?";
 
 const AccountSettings = () => {
-    //const isInitializing = useContext(IsInitializingContext);
     const user = useSession();
 
     const [email, setEmail] = useState(user.email);
@@ -26,7 +25,7 @@ const AccountSettings = () => {
 
         const auth = getAuth();
 
-        const credential = auth.EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+        const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
 
         reauthenticateWithCredential(auth.currentUser, credential)
             .then(() => {
@@ -52,7 +51,7 @@ const AccountSettings = () => {
 
         const auth = getAuth();
 
-        const credential = auth.EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+        const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
 
         reauthenticateWithCredential(auth.currentUser, credential)
             .then(() => {

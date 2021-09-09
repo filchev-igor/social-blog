@@ -14,6 +14,7 @@ import Admin from "./admin";
 import AddPost from "./addPost";
 import {useAuth} from "../hooks";
 import {IsInitializingContext, UserContext} from "../contexts";
+import Post from "./post";
 
 const App = () => {
     const {isInitializing, user} = useAuth();
@@ -45,6 +46,9 @@ const App = () => {
                         </Route>
                         <Route path={ROUTES.ADD_POST}>
                             <AddPost/>
+                        </Route>
+                        <Route path={ROUTES.POST}>
+                            <Post/>
                         </Route>
                         <Route path="*">
                             <PageDoesNotExist/>

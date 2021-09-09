@@ -1,10 +1,19 @@
 import {Link} from "react-router-dom";
 import * as ROUTES from "../../constants/routes";
 import LogoutButton from "../logoutButton";
-import React from "react";
+import React, {useContext} from "react";
+import {useSession, useUserCollection} from "../../hooks";
+import * as ROLES from "../../constants/roles";
+import {IsInitializingContext} from "../../contexts";
 
-const LowerNavbar = () => (
-    <nav aria-label="Main navigation"
+const LowerNavbar = () => {
+    const isInitializing = useContext(IsInitializingContext);
+    const user = useSession();
+
+    const {isLoadingUserCollection, userCollection} = useUserCollection(isInitializing ? "" :
+        user ? user.uid : "");
+
+    return <nav aria-label="Main navigation"
          className="navbar navbar-expand-md navbar-light bg-light bg-gradient sticky-top shadow-sm"
          id="secondNavbarConsumer">
         <div className="container-fluid">
@@ -30,9 +39,10 @@ const LowerNavbar = () => (
                         <Link className="nav-link" to={ROUTES.ACCOUNT}>Account</Link>
                     </li>
 
+                    {!isLoadingUserCollection && userCollection.role === ROLES.ADMIN &&
                     <li className="nav-item">
                         <Link className="nav-link" to={ROUTES.ADMIN}>Admin</Link>
-                    </li>
+                    </li>}
 
                     <li className="nav-item">
                         <LogoutButton/>
@@ -41,6 +51,6 @@ const LowerNavbar = () => (
             </div>
         </div>
     </nav>
-);
+};
 
 export default LowerNavbar;

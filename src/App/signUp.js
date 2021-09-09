@@ -36,7 +36,7 @@ const SignUp = () => {
         const auth = getAuth();
 
         createUserWithEmailAndPassword(auth, email, password)
-            .then(userCredential => async() => {
+            .then(async (userCredential) => {
                 try {
                     await setDoc(doc(firebaseDb, "users", userCredential.user.uid), {
                         role: ROLES.USER,
@@ -44,7 +44,9 @@ const SignUp = () => {
                             first: "",
                             last: ""
                         },
-                        creationTime: new Date()
+                        creationTime: new Date(),
+                        publishedPosts: 0,
+                        hasDraft: false
                     });
                 }
                 catch(error) {
