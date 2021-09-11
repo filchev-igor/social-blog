@@ -4,7 +4,14 @@ import {arrayRemove, arrayUnion, doc, updateDoc} from "firebase/firestore";
 import {firebaseDb} from "../../Firebase";
 import WriteComment from "./writeComment";
 
-const Comment = ({postId, commentId, data, onCommentPublished}) => {
+const Comment = props => {
+    const {
+        postId,
+        commentId,
+        data,
+        onCommentPublished
+    } = props;
+
     const user = useSession();
 
     const commentatorUid = data.commentator.uid;
@@ -61,10 +68,8 @@ const Comment = ({postId, commentId, data, onCommentPublished}) => {
         });
     };
 
-    const handleAnswerComment = () => {
-        setIsUserAnsweringComment(!isUserAnsweringComment);
-    };
-
+    const handleAnswerComment = () => setIsUserAnsweringComment(!isUserAnsweringComment);
+    
     useEffect(() => {
         setIsLiked(positivelyLiked.includes(user.uid));
         setIsDisliked(negativelyLiked.includes(user.uid));
@@ -75,6 +80,9 @@ const Comment = ({postId, commentId, data, onCommentPublished}) => {
             <div className="card-body">
                 <h6 className="card-subtitle text-muted">{firstName} {lastName} {date}</h6>
                 <p className="card-text">{text}</p>
+
+                {props.children}
+
                 {commentatorUid !== user.uid &&
                 <button
                     type="button"

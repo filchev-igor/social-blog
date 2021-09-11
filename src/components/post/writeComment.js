@@ -52,7 +52,7 @@ const WriteComment = props => {
                     }
                 };
 
-                const commentsRef = doc(firebaseDb, "comments", "DC");
+                const commentsRef = doc(firebaseDb, "comments", docRef.id);
 
                 await updateDoc(commentsRef, additionalDocData);
             }

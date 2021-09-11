@@ -267,6 +267,7 @@ export const useCommentsCollection = postId => {
         const queryRef = query(
             commentsRef,
             where("postId", "==", postId),
+            orderBy("answerRiver.rootCommentId"),
             orderBy("date"),
             limit(20));
 
