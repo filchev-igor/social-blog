@@ -10,9 +10,10 @@ const DislikeButton = props => {
         positivelyLiked,
         negativelyLiked,
         rating,
-        postId,
+        docId,
         isRatingBeingManipulated,
-        setIsRatingBeingManipulated
+        setIsRatingBeingManipulated,
+        collectionName
     } = props;
 
     const isLiked = positivelyLiked.includes(user.uid);
@@ -40,7 +41,7 @@ const DislikeButton = props => {
                 "likedBy.positively": arrayRemove(user.uid)
             };
 
-            const docRef = doc(firebaseDb, "posts", postId);
+            const docRef = doc(firebaseDb, collectionName, docId);
 
             await updateDoc(docRef, docData);
         })().then(() => {
@@ -60,7 +61,8 @@ const DislikeButton = props => {
     }
 
     useEffect(() => {
-        setIsPressed(false);
+        if (isLiked)
+            setIsPressed(false);
     }, [isLiked]);
 
     return (

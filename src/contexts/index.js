@@ -6,4 +6,4 @@ export const UserContext = createContext({
     user: null
 });
 
-export const CommentsNumberContext = createContext(0);
+export const CommentsContext = createContext({});

@@ -1,13 +1,14 @@
 import {useParams} from "react-router-dom";
 import {usePost, useSession} from "../../hooks";
 import PageDoesNotExist from "../../App/404";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {ContainerFluid} from "../globalLayout";
-import {arrayRemove, arrayUnion, doc, updateDoc} from "firebase/firestore";
-import {firebaseDb} from "../../Firebase";
 import WriteComment from "./writeComment";
 import CommentsList from "./commentsList";
-import {CommentsNumberContext} from "../../contexts";
+import {CommentsContext} from "../../contexts";
+import LikeButton from "../layout/likeButton";
+import DislikeButton from "../layout/dislikeButtton";
+import {POSTS_COLLECTION} from "../../constants/likeCollectionNames";
 
 const PostContent = () => {
     const {postId} = useParams();
@@ -32,12 +33,9 @@ const PostContent = () => {
     const user = useSession();
 
     //TODO correct variable here (both used in comment.js and postContent.js)
-    const [isLiked, setIsLiked] = useState(false);
-    const [isDisliked, setIsDisliked] = useState(false);
-    const [isLikeHovered, setIsLikeHovered] = useState(false);
-    const [isDislikeHovered, setIsDislikeHovered] = useState(false);
+    const [isRatingBeingManipulated, setIsRatingBeingManipulated] = useState(false);
     const [isCommentPublished, setIsCommentPublished] = useState(false);
-    //const [isUserAnsweringComment, setIsUserAnsweringComment] = useState(false);
+    const [currentCommentId, setCurrentCommentId] = useState("root");
 
     const postStructure = structure.map((element, index) => {
         const value = [];
@@ -54,49 +52,6 @@ const PostContent = () => {
 
         return <p key={postId + "-element-" + index} className="card-text">{value[0]}</p>;
     });
-
-    const handleEvaluatedPositively = (isUserRecallingMark = false) => {
-        (async () => {
-            const newRating = negativelyLiked.includes(user.uid) && !isUserRecallingMark ? 2 : 1;
-
-            const docData = {
-                "rating": rating + newRating,
-                "likedBy.positively": !isUserRecallingMark ? arrayUnion(user.uid) : arrayUnion(),
-                "likedBy.negatively": arrayRemove(user.uid)
-            };
-
-            const docRef = doc(firebaseDb, "posts", postId);
-
-            await updateDoc(docRef, docData);
-        })().then(() => {
-            setIsLiked(!isUserRecallingMark);
-            setIsDisliked(false);
-        });
-    };
-
-    const handleEvaluatedNegatively = (isUserRecallingMark = false) => {
-        (async () => {
-            const newRating = positivelyLiked.includes(user.uid) && !isUserRecallingMark ? 2 : 1;
-
-            const docData = {
-                "rating": rating - newRating,
-                "likedBy.positively": arrayRemove(user.uid),
-                "likedBy.negatively": !isUserRecallingMark ? arrayUnion(user.uid) : arrayUnion()
-            };
-
-            const docRef = doc(firebaseDb, "posts", postId);
-
-            await updateDoc(docRef, docData);
-        })().then(() => {
-            setIsLiked(false);
-            setIsDisliked(!isUserRecallingMark);
-        });
-    };
-
-    useEffect(() => {
-        setIsLiked(positivelyLiked.includes(user.uid));
-        setIsDisliked(negativelyLiked.includes(user.uid));
-    },[negativelyLiked, positivelyLiked, user.uid]);
     
     if (isPostChecking)
         return null;
@@ -128,51 +83,58 @@ const PostContent = () => {
                             </button>
 
                             {creatorUid !== user.uid &&
-                            <button
-                                type="button"
-                                className={`btn ${isLiked ? "btn-success" : "btn-outline-success"}`}
-                                onClick={!isLiked ? () => handleEvaluatedPositively() : () => handleEvaluatedNegatively(true)}
-                                onMouseEnter={!isLiked ? () => setIsLikeHovered(true) : () => {
-                                }}
-                                onMouseLeave={!isLiked ? () => setIsLikeHovered(false) : () => {
-                                }}>
-                                <i className={`bi bi-hand-thumbs-up${isLikeHovered ? "-fill" : ""}`}>
-
-                                </i>
-                            </button>}
+                            <LikeButton
+                                collectionName={POSTS_COLLECTION}
+                                isRatingBeingManipulated={isRatingBeingManipulated}
+                                setIsRatingBeingManipulated={setIsRatingBeingManipulated}
+                                positivelyLiked={positivelyLiked}
+                                negativelyLiked={negativelyLiked}
+                                rating={rating}
+                                docId={postId}/>}
 
                             <span>{rating}</span>
 
                             {creatorUid !== user.uid &&
-                            <button
-                                type="button"
-                                className={`btn ${isDisliked ? "btn-danger" : "btn-outline-danger"}`}
-                                onClick={!isDisliked ? () => handleEvaluatedNegatively() : () => handleEvaluatedPositively(true)}
-                                onMouseEnter={!isDisliked ? () => setIsDislikeHovered(true) : () => {
-                                }}
-                                onMouseLeave={!isDisliked ? () => setIsDislikeHovered(false) : () => {
-                                }}>
-                                <i className={`bi bi-hand-thumbs-down${isDislikeHovered ? "-fill" : ""}`}>
-
-                                </i>
-                            </button>}
+                            <DislikeButton
+                                collectionName={POSTS_COLLECTION}
+                                isRatingBeingManipulated={isRatingBeingManipulated}
+                                setIsRatingBeingManipulated={setIsRatingBeingManipulated}
+                                positivelyLiked={positivelyLiked}
+                                negativelyLiked={negativelyLiked}
+                                rating={rating}
+                                docId={postId}/>}
                         </div>
                     </div>
 
-                    <CommentsNumberContext.Provider value={commentsNumber}>
+                    <CommentsContext.Provider value={{
+                        commentsNumber,
+                        currentCommentId, setCurrentCommentId,
+                        isCommentPublished, setIsCommentPublished
+                    }}>
                         <div className="card">
                             <div className="card-body">
                                 <CommentsList postId={postId} onCommentPublished={setIsCommentPublished}/>
                             </div>
-
                             <div className="card-footer">
-                                <WriteComment postId={postId} onCommentPublished={setIsCommentPublished} isFirstComment={true}/>
+                                {currentCommentId === "root" &&
+                                <WriteComment
+                                    postId={postId}
+                                    onCommentPublished={setIsCommentPublished}
+                                    isFirstComment={true}/>}
+
+                                {currentCommentId !== "root" &&
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-primary"
+                                    onClick={() => setCurrentCommentId("root")}>
+                                    Write new comment
+                                </button>}
 
                                 {isCommentPublished &&
                                 <div className="alert alert-success mt-3" role="alert">Your comment was published</div>}
                             </div>
                         </div>
-                    </CommentsNumberContext.Provider>
+                    </CommentsContext.Provider>
                 </div>
             </div>
         </ContainerFluid>

@@ -3,6 +3,7 @@ import {useSession} from "../../hooks";
 import {Link} from "react-router-dom";
 import LikeButton from "../layout/likeButton";
 import DislikeButton from "../layout/dislikeButtton";
+import {POSTS_COLLECTION} from "../../constants/likeCollectionNames";
 
 const Card = props => {
     const {
@@ -54,23 +55,25 @@ const Card = props => {
 
                 {creatorUid !== user.uid &&
                 <LikeButton
+                    collectionName={POSTS_COLLECTION}
                     isRatingBeingManipulated={isRatingBeingManipulated}
                     setIsRatingBeingManipulated={setIsRatingBeingManipulated}
                     positivelyLiked={positivelyLiked}
                     negativelyLiked={negativelyLiked}
                     rating={rating}
-                    postId={postId}/>}
+                    docId={postId}/>}
 
                 <span>{rating}</span>
 
                 {creatorUid !== user.uid &&
                 <DislikeButton
+                    collectionName={POSTS_COLLECTION}
                     isRatingBeingManipulated={isRatingBeingManipulated}
                     setIsRatingBeingManipulated={setIsRatingBeingManipulated}
                     positivelyLiked={positivelyLiked}
                     negativelyLiked={negativelyLiked}
                     rating={rating}
-                    postId={postId}/>}
+                    docId={postId}/>}
             </div>
         </div>
     );

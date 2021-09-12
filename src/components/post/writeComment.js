@@ -3,17 +3,23 @@ import React, {useContext, useEffect, useState} from "react";
 import {addDoc, collection, updateDoc, doc} from "firebase/firestore";
 import {firebaseDb} from "../../Firebase";
 import {useSession, useUserCollection} from "../../hooks";
-import {CommentsNumberContext} from "../../contexts";
+import {CommentsContext} from "../../contexts";
 
 const WriteComment = props => {
-    const commentsNumber = useContext(CommentsNumberContext);
+    const {
+        commentsNumber,
+        isCommentPublished,
+        setIsCommentPublished,
+        setCurrentCommentId
+    } = useContext(CommentsContext);
 
     const {
         postId,
         isFirstComment = false,
-        commentId = '',
+        commentId = "",
         commentParentOrder = 0,
     } = props;
+
     const user = useSession();
     const {userCollection} = useUserCollection(user.uid);
 
@@ -68,14 +74,15 @@ const WriteComment = props => {
             await updateDoc(updatedPostsRef, postsDocData);
         })().then(() => {
             setComment('');
-            //onCommentPublished(true);
+            setIsCommentPublished(true);
+            setCurrentCommentId("root");
         });
     }
 
     useEffect(() => {
-        //if (comment)
-            //onCommentPublished(false);
-    }, [comment]);
+        if (isCommentPublished && comment.length)
+            setIsCommentPublished(false);
+    }, [comment, isCommentPublished, setIsCommentPublished]);
 
     return <>
         <Input id="commentText" placeholder="Comment here" onChange={setComment} value={comment}/>
