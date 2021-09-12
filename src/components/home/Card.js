@@ -1,8 +1,8 @@
 import React, {useState} from "react";
-import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
-import {firebaseDb} from "../../Firebase";
 import {useSession} from "../../hooks";
 import {Link} from "react-router-dom";
+import LikeButton from "../layout/likeButton";
+import DislikeButton from "../layout/dislikeButtton";
 
 const Card = props => {
     const {
@@ -13,57 +13,20 @@ const Card = props => {
 
     const user = useSession();
 
-    const positivelyLiked = data.likedBy.positively;
-    const negativelyLiked = data.likedBy.negatively;
+    const likedBy = data.likedBy;
 
-    const [isLiked, setIsLiked] = useState(positivelyLiked.includes(user.uid));
-    const [isDisliked, setIsDisliked] = useState(negativelyLiked.includes(user.uid));
-    const [isLikeHovered, setIsLikeHovered] = useState(false);
-    const [isDislikeHovered, setIsDislikeHovered] = useState(false);
+    const positivelyLiked = likedBy.positively;
+    const negativelyLiked = likedBy.negatively;
+
+    const [isRatingBeingManipulated, setIsRatingBeingManipulated] = useState(false);
 
     const firstName = data.creator.first;
     const lastName = data.creator.last;
+    const creatorUid = data.creator.uid;
     const date = data.dates.published;
     const title = data.title;
     const rating = data.rating;
-
-    const handleEvaluatedPositively = (isUserRecallingMark = false) => {
-        (async () => {
-            const newRating = negativelyLiked.includes(user.uid) && !isUserRecallingMark ? 2 : 1;
-
-            const docData = {
-                "rating": rating + newRating,
-                "likedBy.positively": !isUserRecallingMark ? arrayUnion(user.uid) : arrayUnion(),
-                "likedBy.negatively": arrayRemove(user.uid)
-            };
-
-            const docRef = doc(firebaseDb, "posts", postId);
-
-            await updateDoc(docRef, docData);
-        })().then(() => {
-            setIsLiked(!isUserRecallingMark);
-            setIsDisliked(false);
-        });
-    };
-
-    const handleEvaluatedNegatively = (isUserRecallingMark = false) => {
-        (async () => {
-            const newRating = positivelyLiked.includes(user.uid) && !isUserRecallingMark ? 2 : 1;
-
-            const docData = {
-                "rating": rating - newRating,
-                "likedBy.positively": arrayRemove(user.uid),
-                "likedBy.negatively": !isUserRecallingMark ? arrayUnion(user.uid) : arrayUnion()
-            };
-
-            const docRef = doc(firebaseDb, "posts", postId);
-
-            await updateDoc(docRef, docData);
-        })().then(() => {
-            setIsLiked(false);
-            setIsDisliked(!isUserRecallingMark);
-        });
-    };
+    const commentsNumber = data.comments;
 
     return (
         <div className="card mb-4">
@@ -80,29 +43,34 @@ const Card = props => {
             </div>
 
             <div className="card-footer">
-                <button
-                    type="button"
-                    className={`btn ${isLiked ? "btn-success" : "btn-outline-success"}`}
-                    onClick={!isLiked ? () => handleEvaluatedPositively(): () => handleEvaluatedNegatively(true)}
-                    onMouseEnter={!isLiked ? () => setIsLikeHovered(true) : () => {}}
-                    onMouseLeave={!isLiked ? () => setIsLikeHovered(false) : () => {}}>
-                    <i className={`bi bi-hand-thumbs-up${isLikeHovered ? "-fill" : ""}`}>
+                <Link className="text-decoration-none link-dark" to={`post/${postId}`}>
+                    <button type="button" className="btn btn-light">
+                        <i className="bi bi-card-text">
 
-                    </i>
-                </button>
+                        </i>
+                        {commentsNumber}
+                    </button>
+                </Link>
+
+                {creatorUid !== user.uid &&
+                <LikeButton
+                    isRatingBeingManipulated={isRatingBeingManipulated}
+                    setIsRatingBeingManipulated={setIsRatingBeingManipulated}
+                    positivelyLiked={positivelyLiked}
+                    negativelyLiked={negativelyLiked}
+                    rating={rating}
+                    postId={postId}/>}
 
                 <span>{rating}</span>
 
-                <button
-                    type="button"
-                    className={`btn ${isDisliked ? "btn-danger" : "btn-outline-danger"}`}
-                    onClick={!isDisliked ? () => handleEvaluatedNegatively() : () => handleEvaluatedPositively(true)}
-                    onMouseEnter={!isDisliked ? () => setIsDislikeHovered(true) : () => {}}
-                    onMouseLeave={!isDisliked ? () => setIsDislikeHovered(false) : () => {}}>
-                    <i className={`bi bi-hand-thumbs-down${isDislikeHovered ? "-fill" : ""}`}>
-
-                    </i>
-                </button>
+                {creatorUid !== user.uid &&
+                <DislikeButton
+                    isRatingBeingManipulated={isRatingBeingManipulated}
+                    setIsRatingBeingManipulated={setIsRatingBeingManipulated}
+                    positivelyLiked={positivelyLiked}
+                    negativelyLiked={negativelyLiked}
+                    rating={rating}
+                    postId={postId}/>}
             </div>
         </div>
     );

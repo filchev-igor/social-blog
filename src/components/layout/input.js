@@ -17,6 +17,7 @@ const Input = props => {
             className="form-control"
             id={id} value={value}
             onChange={handleChange}
+            onPaste={handleChange}
             placeholder={placeholder}/>
 
         <label htmlFor={id}>{placeholder}</label>

@@ -7,6 +7,7 @@ import {arrayRemove, arrayUnion, doc, updateDoc} from "firebase/firestore";
 import {firebaseDb} from "../../Firebase";
 import WriteComment from "./writeComment";
 import CommentsList from "./commentsList";
+import {CommentsNumberContext} from "../../contexts";
 
 const PostContent = () => {
     const {postId} = useParams();
@@ -16,6 +17,7 @@ const PostContent = () => {
     const {
         firstName,
         lastName,
+        creatorUid,
         date,
         title,
         rating,
@@ -23,7 +25,8 @@ const PostContent = () => {
         likedBy : {
             negatively : negativelyLiked,
             positively : positivelyLiked
-        }
+        },
+        comments : commentsNumber
     } = data;
 
     const user = useSession();
@@ -121,51 +124,55 @@ const PostContent = () => {
                                 <i className="bi bi-card-text">
 
                                 </i>
-                                56
+                                {commentsNumber}
                             </button>
 
+                            {creatorUid !== user.uid &&
                             <button
                                 type="button"
                                 className={`btn ${isLiked ? "btn-success" : "btn-outline-success"}`}
-                                onClick={!isLiked ? () => handleEvaluatedPositively(): () => handleEvaluatedNegatively(true)}
-                                onMouseEnter={!isLiked ? () => setIsLikeHovered(true) : () => {}}
-                                onMouseLeave={!isLiked ? () => setIsLikeHovered(false) : () => {}}>
+                                onClick={!isLiked ? () => handleEvaluatedPositively() : () => handleEvaluatedNegatively(true)}
+                                onMouseEnter={!isLiked ? () => setIsLikeHovered(true) : () => {
+                                }}
+                                onMouseLeave={!isLiked ? () => setIsLikeHovered(false) : () => {
+                                }}>
                                 <i className={`bi bi-hand-thumbs-up${isLikeHovered ? "-fill" : ""}`}>
 
                                 </i>
-                            </button>
+                            </button>}
 
                             <span>{rating}</span>
 
+                            {creatorUid !== user.uid &&
                             <button
                                 type="button"
                                 className={`btn ${isDisliked ? "btn-danger" : "btn-outline-danger"}`}
                                 onClick={!isDisliked ? () => handleEvaluatedNegatively() : () => handleEvaluatedPositively(true)}
-                                onMouseEnter={!isDisliked ? () => setIsDislikeHovered(true) : () => {}}
-                                onMouseLeave={!isDisliked ? () => setIsDislikeHovered(false) : () => {}}>
+                                onMouseEnter={!isDisliked ? () => setIsDislikeHovered(true) : () => {
+                                }}
+                                onMouseLeave={!isDisliked ? () => setIsDislikeHovered(false) : () => {
+                                }}>
                                 <i className={`bi bi-hand-thumbs-down${isDislikeHovered ? "-fill" : ""}`}>
 
                                 </i>
-                            </button>
+                            </button>}
                         </div>
                     </div>
 
-                    <div className="card">
-                        <div className="card-header">
+                    <CommentsNumberContext.Provider value={commentsNumber}>
+                        <div className="card">
+                            <div className="card-body">
+                                <CommentsList postId={postId} onCommentPublished={setIsCommentPublished}/>
+                            </div>
 
+                            <div className="card-footer">
+                                <WriteComment postId={postId} onCommentPublished={setIsCommentPublished} isFirstComment={true}/>
+
+                                {isCommentPublished &&
+                                <div className="alert alert-success mt-3" role="alert">Your comment was published</div>}
+                            </div>
                         </div>
-
-                        <div className="card-body">
-                            <CommentsList postId={postId} onCommentPublished={setIsCommentPublished}/>
-                        </div>
-
-                        <div className="card-footer">
-                            <WriteComment postId={postId} onCommentPublished={setIsCommentPublished} isFirstComment={true}/>
-
-                            {isCommentPublished &&
-                            <div className="alert alert-success mt-3" role="alert">Your comment was published</div>}
-                        </div>
-                    </div>
+                    </CommentsNumberContext.Provider>
                 </div>
             </div>
         </ContainerFluid>

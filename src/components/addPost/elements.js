@@ -27,7 +27,7 @@ export const ImageLink = props => {
     const handleChange = e => {
         setState(e.target.value);
 
-        props.callback(state, props.index);
+        props.callback(e.target.value, props.index);
     };
 
     return (
@@ -35,7 +35,8 @@ export const ImageLink = props => {
             className="form-control"
             placeholder="Type link to image"
             value={state}
-            onChange={handleChange}/>
+            onChange={handleChange}
+            onPaste={handleChange}/>
     );
 };
 
@@ -53,7 +54,8 @@ export const VideoLink = props => {
             className="form-control"
             placeholder="Type link to video"
             value={state}
-            onChange={handleChange}/>
+            onChange={handleChange}
+            onPaste={handleChange}/>
         );
 };
 

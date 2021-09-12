@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 import Input from "../layout/input";
-import {useSession, useUserCollection, useUserPostsId} from "../../hooks";
+import {useSession, useUserCollection, useUserCommentsId, useUserPostsId} from "../../hooks";
 import { doc, updateDoc } from "firebase/firestore";
 import {firebaseDb} from "../../Firebase";
 import {IsInitializingContext} from "../../contexts";
@@ -14,6 +14,7 @@ const UserData = () => {
     const {isLoadingUserCollection, userCollection} = useUserCollection(isInitializing ? "" : user.uid);
 
     const userPostsId = useUserPostsId(user.uid);
+    const userCommentsId = useUserCommentsId(user.uid);
 
     const [firstName, setFirstName] = useState(isLoadingUserCollection ? "" : userCollection.name.first);
     const [lastName, setLastName] = useState(isLoadingUserCollection ? "" : userCollection.name.last);
@@ -47,6 +48,11 @@ const UserData = () => {
                 "creator.last": lastName
             }
 
+            const commentsData = {
+                "commentator.first": firstName,
+                "commentator.last": lastName
+            }
+
             const usersRef = doc(firebaseDb, "users", user.uid);
 
             await updateDoc(usersRef, usersData);
@@ -55,6 +61,12 @@ const UserData = () => {
                 const postsRef = doc(firebaseDb, "posts", id);
 
                 await updateDoc(postsRef, postsData);
+            }
+
+            for (const id of userCommentsId) {
+                const commentsRef = doc(firebaseDb, "comments", id);
+
+                await updateDoc(commentsRef, commentsData);
             }
         })().then(() => setIsNameUpdated(true));
     };

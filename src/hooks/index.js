@@ -197,6 +197,7 @@ export const usePost = postId => {
     const inputData = {
         firstName: '',
         lastName: '',
+        creatorUid: "",
         date: '',
         title: '',
         rating: '',
@@ -204,7 +205,8 @@ export const usePost = postId => {
         likedBy: {
             negatively: [],
             positively: []
-        }
+        },
+        comments: 0
     };
 
     const [state, setState] = useState({
@@ -214,18 +216,7 @@ export const usePost = postId => {
     });
 
     useEffect(() => {
-        const obj = {
-            firstName: '',
-            lastName: '',
-            date: '',
-            title: '',
-            rating: '',
-            structure: [],
-            likedBy: {
-                negatively: [],
-                positively: []
-            }
-        };
+        const obj = {...inputData};
 
         const postsRef = doc(firebaseDb, "posts", postId);
 
@@ -237,12 +228,14 @@ export const usePost = postId => {
 
                 obj.firstName = data.creator.first;
                 obj.lastName = data.creator.last;
+                obj.creatorUid = data.creator.uid;
                 obj.date = moment(date).fromNow();
                 obj.title = data.title;
                 obj.rating = data.rating;
                 obj.structure = data.structure;
                 obj.likedBy.negatively = data.likedBy.negatively;
                 obj.likedBy.positively = data.likedBy.positively;
+                obj.comments = data.comments;
             }
 
             setState({
@@ -294,6 +287,26 @@ export const useCommentsCollection = postId => {
 
         return () => unsubscribe();
     }, [postId]);
+
+    return state;
+};
+
+export const useUserCommentsId = uid => {
+    const [state, setState] = useState([]);
+
+    useEffect(() => {
+        (async () => {
+            const array = [];
+
+            const q = query(collection(firebaseDb, "comments"), where("commentator.uid", "==", uid));
+
+            const querySnapshot = await getDocs(q);
+
+            querySnapshot.forEach(doc => array.push(doc.id));
+
+            return array;
+        })().then(array => setState(array));
+    }, [uid]);
 
     return state;
 };

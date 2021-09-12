@@ -8,8 +8,7 @@ const Comment = props => {
     const {
         postId,
         commentId,
-        data,
-        onCommentPublished
+        data
     } = props;
 
     const user = useSession();
@@ -69,11 +68,21 @@ const Comment = props => {
     };
 
     const handleAnswerComment = () => setIsUserAnsweringComment(!isUserAnsweringComment);
-    
+
     useEffect(() => {
         setIsLiked(positivelyLiked.includes(user.uid));
         setIsDisliked(negativelyLiked.includes(user.uid));
     },[negativelyLiked, positivelyLiked, user.uid]);
+
+    const handleHooverLikeButtons = (isHovered) => {
+        if (!isLiked)
+            setIsLikeHovered(isHovered);
+    };
+
+    const handleHooverDislikeButtons = (isHovered) => {
+        if (!isDisliked)
+            setIsDislikeHovered(isHovered);
+    };
 
     return (
         <div className="card">
@@ -81,15 +90,13 @@ const Comment = props => {
                 <h6 className="card-subtitle text-muted">{firstName} {lastName} {date}</h6>
                 <p className="card-text">{text}</p>
 
-                {props.children}
-
                 {commentatorUid !== user.uid &&
                 <button
                     type="button"
-                    className="btn btn-outline-success"
+                    className={`btn btn-${!isLiked ? "outline-" : ""}success`}
                     onClick={!isLiked ? () => handleEvaluatedPositively(): () => handleEvaluatedNegatively(true)}
-                    onMouseEnter={!isLiked ? () => setIsLikeHovered(true) : () => {}}
-                    onMouseLeave={!isLiked ? () => setIsLikeHovered(false) : () => {}}>
+                    onMouseEnter={() => handleHooverLikeButtons(true)}
+                    onMouseLeave={() => handleHooverLikeButtons(false)}>
                     <i className={`bi bi-hand-thumbs-up${isLikeHovered ? "-fill" : ""}`}>
 
                     </i>
@@ -100,10 +107,10 @@ const Comment = props => {
                 {commentatorUid !== user.uid &&
                 <button
                     type="button"
-                    className="btn btn-outline-danger"
+                    className={`btn btn-${!isDisliked ? "outline-" : ""}danger`}
                     onClick={!isDisliked ? () => handleEvaluatedNegatively() : () => handleEvaluatedPositively(true)}
-                    onMouseEnter={!isDislikeHovered ? () => setIsDislikeHovered(true) : () => {}}
-                    onMouseLeave={!isDislikeHovered ? () => setIsDislikeHovered(false) : () => {}}>
+                    onMouseEnter={() => handleHooverDislikeButtons(true)}
+                    onMouseLeave={() => handleHooverDislikeButtons(false)}>
                     <i className={`bi bi-hand-thumbs-down${isDislikeHovered ? "-fill" : ""}`}>
 
                     </i>
@@ -116,9 +123,10 @@ const Comment = props => {
                 {isUserAnsweringComment &&
                 <WriteComment
                     postId={postId}
-                    onCommentPublished={onCommentPublished}
                     commentId={commentId}
                     commentParentOrder={commentParentOrder}/>}
+
+                {props.children}
             </div>
         </div>
     );

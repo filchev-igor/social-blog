@@ -1,13 +1,15 @@
 import Input from "../layout/input";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {addDoc, collection, updateDoc, doc} from "firebase/firestore";
 import {firebaseDb} from "../../Firebase";
 import {useSession, useUserCollection} from "../../hooks";
+import {CommentsNumberContext} from "../../contexts";
 
 const WriteComment = props => {
+    const commentsNumber = useContext(CommentsNumberContext);
+
     const {
         postId,
-        onCommentPublished,
         isFirstComment = false,
         commentId = '',
         commentParentOrder = 0,
@@ -22,7 +24,7 @@ const WriteComment = props => {
             return;
 
         (async () => {
-            const docData = {
+            const commentsDocData = {
                 postId: postId,
                 commentator: {
                     first: userCollection.name.first,
@@ -42,31 +44,38 @@ const WriteComment = props => {
                 }
             };
 
-            const docRef = await addDoc(collection(firebaseDb, "comments"), docData);
+            const postsDocData = {
+                comments: commentsNumber + 1
+            };
+
+            const commentsDocRef = await addDoc(collection(firebaseDb, "comments"), commentsDocData);
 
             if (isFirstComment) {
-                const additionalDocData = {
+                const updatedCommentsDocData = {
                     answerRiver: {
-                        rootCommentId: docRef.id,
+                        rootCommentId: commentsDocRef.id,
                         order: 0
                     }
                 };
 
-                const commentsRef = doc(firebaseDb, "comments", docRef.id);
+                const updatedCommentsRef = doc(firebaseDb, "comments", commentsDocRef.id);
 
-                await updateDoc(commentsRef, additionalDocData);
+                await updateDoc(updatedCommentsRef, updatedCommentsDocData);
             }
 
+            const updatedPostsRef = doc(firebaseDb, "posts", postId);
+
+            await updateDoc(updatedPostsRef, postsDocData);
         })().then(() => {
             setComment('');
-            onCommentPublished(true);
+            //onCommentPublished(true);
         });
     }
 
     useEffect(() => {
-        if (comment)
-            onCommentPublished(false);
-    }, [comment, onCommentPublished]);
+        //if (comment)
+            //onCommentPublished(false);
+    }, [comment]);
 
     return <>
         <Input id="commentText" placeholder="Comment here" onChange={setComment} value={comment}/>

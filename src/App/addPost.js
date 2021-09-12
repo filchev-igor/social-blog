@@ -153,15 +153,14 @@ const AddPost = () => {
     }, [data, existingDocId, isDraftCheckOver]);
 
     useEffect(() => {
-        const {firstName, lastName, uid} = userDataRef.current;
-
         if (isTitleEmpty && isPostEmpty)
             return;
 
         if (isPostBeingManipulated)
             return;
 
-        //TODO Take a look at the error field (it is empty!)
+        const {firstName, lastName, uid} = userDataRef.current;
+
         const createPost = async() => {
             setIsPostBeingManipulated(true);
 
@@ -181,7 +180,8 @@ const AddPost = () => {
                 likedBy : {
                     positively: [],
                     negatively: []
-                }
+                },
+                comments: 0
             };
 
             const usersData = {
