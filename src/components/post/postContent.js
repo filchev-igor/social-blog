@@ -46,7 +46,7 @@ const PostContent = () => {
         if (element.type === "text")
             value.push(element.value);
         else if (element.type === "image link")
-            value.push(<img src={element.value} className="img-fluid" alt="Page is not loaded" />);
+            value.push(<img src={element.value} className="img-fluid" alt="Element is not loaded" />);
         //else if (element.type === "video link")
         //value.push(element.value);
 

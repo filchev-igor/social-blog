@@ -77,18 +77,18 @@ const AccountSettings = () => {
         </div>
 
         {fieldToUpdate === "email" &&
-        <Input type="email" id="currentEmail" value={email} placeholder="Type new email" onChange={setEmail}/>
+        <Input type="email" value={email} placeholder="Type new email" onChange={setEmail}/>
         }
 
-        <Input type="password" id="currentPassword" value={currentPassword} placeholder="Type current password" onChange={setCurrentPassword} />
+        <Input type="password" value={currentPassword} placeholder="Type current password" onChange={setCurrentPassword} />
 
         {fieldToUpdate === "password" &&
-        <Input type="password" id="newPassword" value={newPassword} placeholder="Type new password"
+        <Input type="password" value={newPassword} placeholder="Type new password"
                onChange={setNewPassword}/>
         }
 
         {fieldToUpdate === "password" &&
-        <Input type="password" id="newPasswordRepeat" value={newPasswordRepeat} placeholder="Type new password again" onChange={setNewPasswordRepeat} />
+        <Input type="password" value={newPasswordRepeat} placeholder="Type new password again" onChange={setNewPasswordRepeat} />
         }
 
         {firebaseAuthError.code &&

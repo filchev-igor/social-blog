@@ -64,7 +64,6 @@ const DeleteAccount = () => {
 
         <Input
             type="password"
-            id="currentPassword"
             value={currentPassword}
             placeholder="Type current password"
             onChange={setCurrentPassword}/>

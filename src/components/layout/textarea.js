@@ -1,8 +1,7 @@
 import React from "react";
 
-const Input = props => {
+const Textarea = props => {
     const {
-        type = "text",
         value,
         placeholder,
         onChange
@@ -20,19 +19,21 @@ const Input = props => {
     const handleChange = e => onChange(e.target.value);
 
     return (
-        <div className="mb-3 form-floating">
-            <input
-                type={type}
+        <div className="form-floating">
+            <textarea
                 className="form-control"
                 id={id}
-                value={value}
                 onChange={handleChange}
                 onPaste={handleChange}
-                placeholder={placeholder}/>
+                placeholder={placeholder}
+                value={value}
+                style={{height: "100px"}}>
+
+            </textarea>
 
             <label htmlFor={id}>{placeholder}</label>
         </div>
     );
 };
 
-export default Input;
+export default Textarea;

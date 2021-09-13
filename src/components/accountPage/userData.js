@@ -79,9 +79,9 @@ const UserData = () => {
     }, [isLoadingUserCollection]);
 
     return <>
-        <Input id="firstName" value={firstName} placeholder="Type your first name" onChange={setFirstName}/>
+        <Input value={firstName} placeholder="Type your first name" onChange={setFirstName}/>
 
-        <Input id="lastName" value={lastName} placeholder="Type your last name" onChange={setLastName}/>
+        <Input value={lastName} placeholder="Type your last name" onChange={setLastName}/>
 
         <button type="button" className="btn btn-info mt-3" onClick={handleUserDataUpdate}>Update your data</button>
 

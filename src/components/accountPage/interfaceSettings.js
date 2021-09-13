@@ -1,5 +1,7 @@
 const InterfaceSettings = () => {
-    return 66;
+    return <>
+
+    </>;
 };
 
 export default InterfaceSettings;

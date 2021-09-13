@@ -85,7 +85,7 @@ const WriteComment = props => {
     }, [comment, isCommentPublished, setIsCommentPublished]);
 
     return <>
-        <Input id="commentText" placeholder="Comment here" onChange={setComment} value={comment}/>
+        <Input placeholder="Comment here" onChange={setComment} value={comment}/>
         <button type="button" className="btn btn-outline-primary" onClick={handleComment}>
             Publish
         </button>
