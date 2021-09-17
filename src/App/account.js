@@ -2,7 +2,7 @@ import React, {useContext} from "react";
 import {ContainerFluid} from "../components/globalLayout";
 import {Link, Redirect, Route, Switch, useHistory, useRouteMatch} from "react-router-dom";
 import * as ROUTES from '../constants/routes';
-import AccountPage from "../components/accountPage/accountPage";
+import AccountPage from "../components/account/accountPage";
 import {IsInitializingContext} from "../contexts";
 import {useSession} from "../hooks";
 

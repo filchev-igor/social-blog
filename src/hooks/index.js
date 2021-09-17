@@ -1,6 +1,6 @@
 import {useContext, useEffect, useState} from "react";
 import {getAuth, onAuthStateChanged} from "firebase/auth";
-import {UserContext} from "../contexts";
+import {UserCollectionContext, UserContext} from "../contexts";
 import { doc, onSnapshot, query, collection, where, getDocs, orderBy, limit } from "firebase/firestore";
 import {firebaseDb} from "../Firebase";
 import * as moment from "moment";
@@ -37,7 +37,16 @@ export const useAuth = () => {
     }, []);
 
     return state;
-}
+};
+
+export const useFullUserData = () => {
+    const {isLoadingUserCollection, userCollection} = useContext(UserCollectionContext);
+
+    return {
+        isLoadingUserCollection,
+        userCollection
+    };
+};
 
 export const useUserCollection = uid => {
     const [state, setState] = useState({

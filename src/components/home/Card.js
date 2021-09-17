@@ -1,9 +1,10 @@
-import React, {useState} from "react";
-import {useSession} from "../../hooks";
+import React, {useEffect, useState} from "react";
+import {useFullUserData, useSession} from "../../hooks";
 import {Link} from "react-router-dom";
 import LikeButton from "../layout/likeButton";
 import DislikeButton from "../layout/dislikeButtton";
 import {POSTS_COLLECTION} from "../../constants/likeCollectionNames";
+import * as interfaceStyles from "../../constants/interfaceStyles";
 
 const Card = props => {
     const {
@@ -13,6 +14,11 @@ const Card = props => {
     } = props;
 
     const user = useSession();
+
+    const {isLoadingUserCollection, userCollection} = useFullUserData();
+
+    const [cardColor, setCardColor] = useState('light');
+    const [textColor, setTextColor] = useState('dark');
 
     const likedBy = data.likedBy;
 
@@ -29,51 +35,79 @@ const Card = props => {
     const rating = data.rating;
     const commentsNumber = data.comments;
 
+    useEffect(() => {
+        if (!isLoadingUserCollection) {
+            const component = interfaceStyles.HOME_PAGE
+                .split(" ")
+                .map((value, index) => {
+                    if (index)
+                        return value[0].toUpperCase() + value.slice(1);
+
+                    return value;
+                })
+                .join("");
+
+            const elementStyles = userCollection['interfaceStyles'][component];
+
+            const cardBackground = elementStyles['cardColor'];
+            const textStyle = elementStyles['textColor'];
+
+            setCardColor(cardBackground);
+            setTextColor(textStyle);
+        }
+    }, [isLoadingUserCollection, userCollection]);
+
     return (
-        <div className="card mb-4">
+        <div className={`card mb-4 bg-${cardColor} text-${textColor}`}>
             <div className="card-header">
                 {`${firstName} ${lastName} ${date}`}
             </div>
 
             <div className="card-body">
                 <h5 className="card-title">
-                    <Link className="text-decoration-none link-dark" to={`post/${postId}`}>{title}</Link>
+                    <Link
+                        className={`text-decoration-none link-${textColor === "white" ? "light" : textColor}`}
+                        to={`post/${postId}`}>{title}</Link>
                 </h5>
 
                 {postStructure}
             </div>
 
             <div className="card-footer">
-                <Link className="text-decoration-none link-dark" to={`post/${postId}`}>
-                    <button type="button" className="btn btn-light">
-                        <i className="bi bi-card-text">
+                <div className="d-flex gap-2">
+                    <Link className="text-decoration-none link-dark" to={`post/${postId}`}>
+                        <button
+                            type="button"
+                            className={`btn btn-outline-${textColor === "white" ? "light" : textColor}`}>
+                            <i className="bi bi-card-text">
 
-                        </i>
-                        {commentsNumber}
-                    </button>
-                </Link>
+                            </i>
+                            {" " + commentsNumber}
+                        </button>
+                    </Link>
 
-                {creatorUid !== user.uid &&
-                <LikeButton
-                    collectionName={POSTS_COLLECTION}
-                    isRatingBeingManipulated={isRatingBeingManipulated}
-                    setIsRatingBeingManipulated={setIsRatingBeingManipulated}
-                    positivelyLiked={positivelyLiked}
-                    negativelyLiked={negativelyLiked}
-                    rating={rating}
-                    docId={postId}/>}
+                    {creatorUid !== user.uid &&
+                    <LikeButton
+                        collectionName={POSTS_COLLECTION}
+                        isRatingBeingManipulated={isRatingBeingManipulated}
+                        setIsRatingBeingManipulated={setIsRatingBeingManipulated}
+                        positivelyLiked={positivelyLiked}
+                        negativelyLiked={negativelyLiked}
+                        rating={rating}
+                        docId={postId}/>}
 
-                <span>{rating}</span>
+                    <button type="button" className={`btn text-${textColor}`} disabled={true}>{rating}</button>
 
-                {creatorUid !== user.uid &&
-                <DislikeButton
-                    collectionName={POSTS_COLLECTION}
-                    isRatingBeingManipulated={isRatingBeingManipulated}
-                    setIsRatingBeingManipulated={setIsRatingBeingManipulated}
-                    positivelyLiked={positivelyLiked}
-                    negativelyLiked={negativelyLiked}
-                    rating={rating}
-                    docId={postId}/>}
+                    {creatorUid !== user.uid &&
+                    <DislikeButton
+                        collectionName={POSTS_COLLECTION}
+                        isRatingBeingManipulated={isRatingBeingManipulated}
+                        setIsRatingBeingManipulated={setIsRatingBeingManipulated}
+                        positivelyLiked={positivelyLiked}
+                        negativelyLiked={negativelyLiked}
+                        rating={rating}
+                        docId={postId}/>}
+                </div>
             </div>
         </div>
     );

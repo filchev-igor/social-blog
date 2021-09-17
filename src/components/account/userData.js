@@ -1,23 +1,21 @@
-import React, {useContext, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Input from "../layout/input";
-import {useSession, useUserCollection, useUserCommentsId, useUserPostsId} from "../../hooks";
+import {useFullUserData, useSession, useUserCommentsId, useUserPostsId} from "../../hooks";
 import { doc, updateDoc } from "firebase/firestore";
 import {firebaseDb} from "../../Firebase";
-import {IsInitializingContext} from "../../contexts";
 
 const UPDATE_ACCOUNT = "Do you wish to update your account?";
 
 const UserData = () => {
-    const isInitializing = useContext(IsInitializingContext);
     const user = useSession();
 
-    const {isLoadingUserCollection, userCollection} = useUserCollection(isInitializing ? "" : user.uid);
+    const {isLoadingUserCollection, userCollection} = useFullUserData();
 
     const userPostsId = useUserPostsId(user.uid);
     const userCommentsId = useUserCommentsId(user.uid);
 
-    const [firstName, setFirstName] = useState(isLoadingUserCollection ? "" : userCollection.name.first);
-    const [lastName, setLastName] = useState(isLoadingUserCollection ? "" : userCollection.name.last);
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [isNameUpdated, setIsNameUpdated] = useState(false);
 
     const nameRef = useRef({
@@ -72,10 +70,11 @@ const UserData = () => {
     };
     
     useEffect(() => {
-        if (!isLoadingUserCollection) {
-            setFirstName(nameRef.current.first);
-            setLastName(nameRef.current.last);
-        }
+        if (isLoadingUserCollection)
+            return;
+
+        setFirstName(nameRef.current.first);
+        setLastName(nameRef.current.last);
     }, [isLoadingUserCollection]);
 
     return <>

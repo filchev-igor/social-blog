@@ -9,13 +9,14 @@ import {
 } from "../components/addPost/elements";
 import {ContainerFluid} from "../components/globalLayout";
 import {IsInitializingContext} from "../contexts";
-import {useEditedPostCollection, useSession, useUserCollection} from "../hooks";
+import {useEditedPostCollection, useFullUserData, useSession} from "../hooks";
 import * as ROUTES from "../constants/routes";
 import {useHistory} from "react-router-dom";
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import {firebaseDb} from "../Firebase";
 import moment from "moment";
 import Input from "../components/layout/input";
+import * as interfaceStyles from "../constants/interfaceStyles";
 
 const DELETE_DRAFT = "Do you want to delete the draft?";
 const PUBLISH_POST = "Do you want to publish the draft?";
@@ -34,12 +35,12 @@ const AddPost = () => {
     const [lastSavedTime, setLastSavedTime] = useState(null);
     const [isPostStructureDisplayed, setIsPostStructureDisplayed] = useState(false);
 
-    const {isLoadingUserCollection, userCollection} = useUserCollection(isInitializing ? "" :
-        user ? user.uid : "");
+    const [background, setBackground] = useState('white');
+
+    const {isLoadingUserCollection, userCollection} = useFullUserData();
     const {isDraftCheckOver, docId: existingDocId, data} = useEditedPostCollection(isInitializing ? "" :
         user ? user.uid : "");
 
-    //TODO correct name later
     const userDataRef = useRef({
         firstName: "",
         lastName: "",
@@ -250,6 +251,26 @@ const AddPost = () => {
         }
     }, [title, contentElements, docId, isPostBeingManipulated, isTitleEmpty, isPostEmpty]);
 
+    useEffect(() => {
+        if (!isLoadingUserCollection) {
+            const component = interfaceStyles.NEW_POST
+                .split(" ")
+                .map((value, index) => {
+                    if (index)
+                        return value[0].toUpperCase() + value.slice(1);
+
+                    return value;
+                })
+                .join("");
+
+            const postElementStyles = userCollection['interfaceStyles'][component];
+
+            const backgroundColor = postElementStyles['background'];
+
+            setBackground(backgroundColor);
+        }
+    }, [isLoadingUserCollection, userCollection]);
+
     if (isInitializing)
         return null;
 
@@ -260,7 +281,7 @@ const AddPost = () => {
     }
 
     return (
-        <ContainerFluid>
+        <div className={`container-fluid py-5 min-vh-100 bg-${background}`}>
             <div className="row gy-3">
                 <ElementCentered>
 
@@ -363,7 +384,7 @@ const AddPost = () => {
                     67
                 </ElementCentered>
             </div>
-        </ContainerFluid>
+        </div>
     );
 };
 

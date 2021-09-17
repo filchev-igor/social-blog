@@ -1,21 +1,45 @@
 import {Link} from "react-router-dom";
 import * as ROUTES from "../../constants/routes";
 import LogoutButton from "../logoutButton";
-import React, {useContext} from "react";
-import {useSession, useUserCollection} from "../../hooks";
+import React, {useEffect, useState} from "react";
+import {useFullUserData} from "../../hooks";
 import * as ROLES from "../../constants/roles";
-import {IsInitializingContext} from "../../contexts";
+import {LOWER_NAVBAR} from "../../constants/interfaceStyles";
 
 const LowerNavbar = () => {
-    const isInitializing = useContext(IsInitializingContext);
-    const user = useSession();
+    const {isLoadingUserCollection, userCollection} = useFullUserData();
 
-    const {isLoadingUserCollection, userCollection} = useUserCollection(isInitializing ? "" :
-        user ? user.uid : "");
+    const [backgroundColor, setBackgroundColor] = useState('light');
+    const [isLightColorScheme, setIsLightColorScheme] = useState(true);
+    const [logoutColor, setLogoutColor] = useState('danger');
+
+    useEffect(() => {
+        if (!isLoadingUserCollection) {
+            const component = LOWER_NAVBAR
+                .split(" ")
+                .map((value, index) => {
+                    if (index)
+                        return value[0].toUpperCase() + value.slice(1);
+
+                    return value;
+                })
+                .join("");
+
+            const elementStyles = userCollection['interfaceStyles'][component];
+
+            const elementBackground = elementStyles['background'];
+            const isLight = elementStyles['isLightColorScheme'];
+            const buttonColor = elementStyles['logoutButtonColor'];
+
+            setBackgroundColor(elementBackground);
+            setIsLightColorScheme(isLight);
+            setLogoutColor(buttonColor);
+        }
+    }, [isLoadingUserCollection, userCollection]);
 
     return <nav aria-label="Main navigation"
-         className="navbar navbar-expand-md navbar-light bg-light bg-gradient sticky-top shadow-sm"
-         id="secondNavbarConsumer">
+         className={`navbar navbar-expand-md bg-gradient sticky-top shadow-sm
+         bg-${backgroundColor} navbar-${isLightColorScheme ? "light" : "dark"} `}>
         <div className="container-fluid">
             <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
                     className="navbar-toggler"
@@ -41,11 +65,11 @@ const LowerNavbar = () => {
 
                     {!isLoadingUserCollection && userCollection.role === ROLES.ADMIN &&
                     <li className="nav-item">
-                        <Link className="nav-link" to={ROUTES.ADMIN}>Admin</Link>
+                        <Link className="nav-link" to={ROUTES.STATISTICS}>STATISTICS</Link>
                     </li>}
 
                     <li className="nav-item">
-                        <LogoutButton/>
+                        <LogoutButton color={logoutColor}/>
                     </li>
                 </ul>
             </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import {generateUniqueID} from "web-vitals/dist/modules/lib/generateUniqueID";
 
 const Input = props => {
     const {
@@ -8,14 +9,7 @@ const Input = props => {
         onChange
     } = props;
 
-    const generateId = () => {
-        // Math.random should be unique because of its seeding algorithm.
-        // Convert it to base 36 (numbers + letters), and grab the first 9 characters
-        // after the decimal.
-        return '_' + Math.random().toString(36).substr(2, 9);
-    };
-
-    const id = generateId();
+    const id = generateUniqueID();
 
     const handleChange = e => onChange(e.target.value);
 

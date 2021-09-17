@@ -7,3 +7,8 @@ export const UserContext = createContext({
 });
 
 export const CommentsContext = createContext({});
+
+export const UserCollectionContext = createContext({
+    isLoadingUserCollection: true,
+    userCollection: null
+});

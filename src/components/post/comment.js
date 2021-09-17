@@ -1,10 +1,11 @@
-import React, {useContext, useState} from "react";
-import {useSession} from "../../hooks";
+import React, {useContext, useEffect, useState} from "react";
+import {useFullUserData, useSession} from "../../hooks";
 import WriteComment from "./writeComment";
 import DislikeButton from "../layout/dislikeButtton";
 import LikeButton from "../layout/likeButton";
 import {COMMENTS_COLLECTION} from "../../constants/likeCollectionNames";
 import {CommentsContext} from "../../contexts";
+import * as interfaceStyles from "../../constants/interfaceStyles";
 
 const Comment = props => {
     const {
@@ -14,6 +15,8 @@ const Comment = props => {
     } = props;
 
     const user = useSession();
+
+    const {isLoadingUserCollection, userCollection} = useFullUserData();
 
     const commentatorUid = data.commentator.uid;
     const firstName = data.commentator.first;
@@ -26,56 +29,77 @@ const Comment = props => {
     const commentParentOrder = data.answerRiver.order;
 
     const [isRatingBeingManipulated, setIsRatingBeingManipulated] = useState(false);
-    //const [isCommenting, setIsCommenting] = useState("root");
+    const [background, setBackground] = useState('white');
+    const [textColor, setTextColor] = useState('dark');
 
-    const {
-        currentCommentId,
-        setCurrentCommentId
-    } = useContext(CommentsContext);
+    const {currentCommentId, setCurrentCommentId} = useContext(CommentsContext);
 
     const handleAnswerComment = () => {
-        if (currentCommentId === commentId) {
+        if (currentCommentId === commentId)
             setCurrentCommentId("root");
-        }
-        else {
+        else
             setCurrentCommentId(commentId);
-        }
     };
 
+    useEffect(() => {
+        if (!isLoadingUserCollection) {
+            const component = interfaceStyles.COMMENTS
+                .split(" ")
+                .map((value, index) => {
+                    if (index)
+                        return value[0].toUpperCase() + value.slice(1);
+
+                    return value;
+                })
+                .join("");
+
+            const postElementStyles = userCollection['interfaceStyles'][component];
+
+            const backgroundColor = postElementStyles['background'];
+            const textStyle = postElementStyles['textColor'];
+
+            setBackground(backgroundColor);
+            setTextColor(textStyle);
+        }
+    }, [isLoadingUserCollection, userCollection]);
+
     return (
-        <div className="card">
+        <div className={`card bg-${background} text-${textColor} border-0`}>
             <div className="card-body">
-                <h6 className="card-subtitle text-muted">{firstName} {lastName} {date}</h6>
+                <h6 className="card-title">{firstName} {lastName} <span className={`text-${textColor === "dark" ? "white" : "dark"}`}>{date}</span></h6>
+
                 <p className="card-text">{text}</p>
 
-                {commentatorUid !== user.uid &&
-                <LikeButton
-                    collectionName={COMMENTS_COLLECTION}
-                    isRatingBeingManipulated={isRatingBeingManipulated}
-                    setIsRatingBeingManipulated={setIsRatingBeingManipulated}
-                    positivelyLiked={positivelyLiked}
-                    negativelyLiked={negativelyLiked}
-                    rating={rating}
-                    docId={commentId}/>}
+                <div className="gap-2 d-flex">
+                    {commentatorUid !== user.uid &&
+                    <LikeButton
+                        collectionName={COMMENTS_COLLECTION}
+                        isRatingBeingManipulated={isRatingBeingManipulated}
+                        setIsRatingBeingManipulated={setIsRatingBeingManipulated}
+                        positivelyLiked={positivelyLiked}
+                        negativelyLiked={negativelyLiked}
+                        rating={rating}
+                        docId={commentId}/>}
 
-                {rating}
+                    <button type="button" className={`btn text-${textColor}`} disabled={true}>{rating}</button>
 
-                {commentatorUid !== user.uid &&
-                <DislikeButton
-                    collectionName={COMMENTS_COLLECTION}
-                    isRatingBeingManipulated={isRatingBeingManipulated}
-                    setIsRatingBeingManipulated={setIsRatingBeingManipulated}
-                    positivelyLiked={positivelyLiked}
-                    negativelyLiked={negativelyLiked}
-                    rating={rating}
-                    docId={commentId}/>}
+                    {commentatorUid !== user.uid &&
+                    <DislikeButton
+                        collectionName={COMMENTS_COLLECTION}
+                        isRatingBeingManipulated={isRatingBeingManipulated}
+                        setIsRatingBeingManipulated={setIsRatingBeingManipulated}
+                        positivelyLiked={positivelyLiked}
+                        negativelyLiked={negativelyLiked}
+                        rating={rating}
+                        docId={commentId}/>}
 
-                <button
-                    type="button"
-                    className={`btn btn-outline-${currentCommentId !== commentId ? "primary" : "danger"}`}
-                    onClick={handleAnswerComment}>
-                    {currentCommentId !== commentId ? "Answer" : "Cancel"}
-                </button>
+                    <button
+                        type="button"
+                        className={`btn btn-outline-${currentCommentId !== commentId ? "primary" : "danger"}`}
+                        onClick={handleAnswerComment}>
+                        {currentCommentId !== commentId ? "Answer" : "Cancel"}
+                    </button>
+                </div>
 
                 {currentCommentId === commentId &&
                 <WriteComment

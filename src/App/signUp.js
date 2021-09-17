@@ -46,7 +46,46 @@ const SignUp = () => {
                         },
                         creationTime: new Date(),
                         publishedPosts: 0,
-                        hasDraft: false
+                        hasDraft: false,
+                        interfaceStyles: {
+                            upperNavbar: {
+                                background: 'light',
+                                isLightColorScheme: true
+                            },
+                            lowerNavbar: {
+                                background: 'light',
+                                isLightColorScheme: true,
+                                logoutButtonColor: 'danger'
+                            },
+                            homePage: {
+                                background: 'white',
+                                cardColor: 'light',
+                                textColor: 'dark'
+                            },
+                            postPage: {
+                                background: 'white',
+                                cardColor: 'light',
+                                textColor: 'dark'
+                            },
+                            comments: {
+                                background: 'white',
+                                textColor: 'dark'
+                            },
+                            newPost: {
+                                background: 'white',
+                                textColor: 'dark'
+                            },
+                            likeButtons : {
+                                like: {
+                                    background: "success",
+                                    icon: "hand-thumbs"
+                                },
+                                dislike: {
+                                    background: "danger",
+                                    icon: "hand-thumbs"
+                                }
+                            }
+                        }
                     });
                 }
                 catch(error) {

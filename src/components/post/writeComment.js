@@ -2,7 +2,7 @@ import Input from "../layout/input";
 import React, {useContext, useEffect, useState} from "react";
 import {addDoc, collection, updateDoc, doc} from "firebase/firestore";
 import {firebaseDb} from "../../Firebase";
-import {useSession, useUserCollection} from "../../hooks";
+import {useFullUserData, useSession} from "../../hooks";
 import {CommentsContext} from "../../contexts";
 
 const WriteComment = props => {
@@ -21,7 +21,8 @@ const WriteComment = props => {
     } = props;
 
     const user = useSession();
-    const {userCollection} = useUserCollection(user.uid);
+
+    const {userCollection} = useFullUserData();
 
     const [comment, setComment] = useState('');
 
