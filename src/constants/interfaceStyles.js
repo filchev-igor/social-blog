@@ -6,7 +6,45 @@ export const COMMENTS = "comments";
 export const NEW_POST = "new post";
 export const LIKE_BUTTONS = "like buttons";
 
-//TODO correct! Some pages call constants not like EXAMPLE.CONST
+export const DEFAULT_STYLES = {
+    upperNavbar: {
+        background: 'light',
+        isLightColorScheme: true
+    },
+    lowerNavbar: {
+        background: 'light',
+        isLightColorScheme: true,
+        logoutButtonColor: 'danger'
+    },
+    homePage: {
+        background: 'white',
+        cardColor: 'light',
+        textColor: 'dark'
+    },
+    postPage: {
+        background: 'white',
+        cardColor: 'light',
+        textColor: 'dark'
+    },
+    comments: {
+        background: 'white',
+        textColor: 'dark'
+    },
+    newPost: {
+        background: 'white',
+        textColor: 'dark'
+    },
+    likeButtons : {
+        like: {
+            background: "success",
+            icon: "hand-thumbs"
+        },
+        dislike: {
+            background: "danger",
+            icon: "hand-thumbs"
+        }
+    }
+};
 
 const interfaceStyles = [
     UPPER_NAVBAR,

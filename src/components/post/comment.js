@@ -3,7 +3,7 @@ import {useFullUserData, useSession} from "../../hooks";
 import WriteComment from "./writeComment";
 import DislikeButton from "../layout/dislikeButtton";
 import LikeButton from "../layout/likeButton";
-import {COMMENTS_COLLECTION} from "../../constants/likeCollectionNames";
+import {COMMENTS_COLLECTION} from "../../constants/firebase";
 import {CommentsContext} from "../../contexts";
 import * as interfaceStyles from "../../constants/interfaceStyles";
 

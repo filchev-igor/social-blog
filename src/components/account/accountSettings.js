@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {firebaseAuthErrorData} from "../../constants/firebaseErrors";
+import {firebaseAuthErrorData} from "../../constants/firebase";
 import Input from "../layout/input";
 import {useSession} from "../../hooks";
 import { getAuth, reauthenticateWithCredential, sendEmailVerification, updatePassword, EmailAuthProvider } from "firebase/auth";

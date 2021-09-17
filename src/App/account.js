@@ -10,7 +10,7 @@ const accountLinks = [
     ROUTES.ACCOUNT_USER_DATA,
     ROUTES.ACCOUNT_SETTINGS,
     ROUTES.ACCOUNT_INTERFACE_SETTINGS,
-    ROUTES.DELETE_ACCOUNT
+    ROUTES.RESET_ACCOUNT
 ];
 
 const accountLinksName = accountLinks.map(value => value.slice(1));

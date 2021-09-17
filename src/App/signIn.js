@@ -3,7 +3,7 @@ import {SignInUpPage} from "../components/signInUp";
 import {Link, useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
 import {IsInitializingContext} from "../contexts";
-import {firebaseAuthErrorData} from "../constants/firebaseErrors";
+import {firebaseAuthErrorData} from "../constants/firebase";
 import Input from "../components/layout/input";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import {useSession} from "../hooks";

@@ -4,12 +4,13 @@ import {useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
 import {IsInitializingContext} from "../contexts";
 import * as ROLES from "../constants/roles";
-import {firebaseAuthErrorData, firebaseFirestoreErrorData} from "../constants/firebaseErrors";
+import {firebaseAuthErrorData, firebaseFirestoreErrorData} from "../constants/firebase";
 import Input from "../components/layout/input";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import {doc, setDoc} from "firebase/firestore";
 import {firebaseDb} from "../Firebase";
 import {useSession} from "../hooks";
+import {DEFAULT_STYLES} from "../constants/interfaceStyles";
 
 const SignUp = () => {
     const isInitializing = useContext(IsInitializingContext);
@@ -47,45 +48,7 @@ const SignUp = () => {
                         creationTime: new Date(),
                         publishedPosts: 0,
                         hasDraft: false,
-                        interfaceStyles: {
-                            upperNavbar: {
-                                background: 'light',
-                                isLightColorScheme: true
-                            },
-                            lowerNavbar: {
-                                background: 'light',
-                                isLightColorScheme: true,
-                                logoutButtonColor: 'danger'
-                            },
-                            homePage: {
-                                background: 'white',
-                                cardColor: 'light',
-                                textColor: 'dark'
-                            },
-                            postPage: {
-                                background: 'white',
-                                cardColor: 'light',
-                                textColor: 'dark'
-                            },
-                            comments: {
-                                background: 'white',
-                                textColor: 'dark'
-                            },
-                            newPost: {
-                                background: 'white',
-                                textColor: 'dark'
-                            },
-                            likeButtons : {
-                                like: {
-                                    background: "success",
-                                    icon: "hand-thumbs"
-                                },
-                                dislike: {
-                                    background: "danger",
-                                    icon: "hand-thumbs"
-                                }
-                            }
-                        }
+                        interfaceStyles: DEFAULT_STYLES
                     });
                 }
                 catch(error) {

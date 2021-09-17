@@ -3,22 +3,24 @@ import React from "react";
 import AccountSettings from "./accountSettings";
 import UserData from "./userData";
 import InterfaceSettings from "./interfaceSettings";
-import DeleteAccount from "./deleteAccount";
+import ResetAccount from "./resetAccount";
+import PageDoesNotExist from "../../App/404";
 
 const componentsMap = new Map();
 
 componentsMap
-    .set("user-data", <UserData />)
-    .set("account-settings", <AccountSettings />)
-    .set("interface-settings", <InterfaceSettings />)
-    .set("delete-account", <DeleteAccount />);
+    .set("user-data", <UserData/>)
+    .set("account-settings", <AccountSettings/>)
+    .set("interface-settings", <InterfaceSettings/>)
+    .set("reset-account", <ResetAccount/>);
 
 const AccountPage = () => {
     const {pageId} = useParams();
 
-    const [firstComponent] = componentsMap.values();
-
-    return componentsMap.get(pageId) || firstComponent;
+    if (componentsMap.get(pageId))
+        return componentsMap.get(pageId)
+    else
+        return <PageDoesNotExist/>;
 };
 
 export default AccountPage;

@@ -28,13 +28,18 @@ const ColorRadio = ({interfaceStyle, type : fieldType = "background"}) => {
 
     const user = useSession();
 
-    const radioLabels = bootstrapColors.map((value, index) => {
+    const radioLabels = bootstrapColors.map(value => {
         const id = generateUniqueID();
 
         const handleColorChange = e => {
             if (!isMakingFetch && !isLoadingUserCollection)
                 setColor(e.target.value);
         };
+
+        if (interfaceStyle === "likeButtons" &&
+            (value === "light" || value === "white")) {
+            return false;
+        }
 
         return <Fragment key={id}>
             <input
@@ -91,7 +96,12 @@ const ColorRadio = ({interfaceStyle, type : fieldType = "background"}) => {
         if (!isLoadingUserCollection) {
             const elementStyles = userCollection['interfaceStyles'][interfaceStyle];
 
-            const savedColor = elementStyles[fieldType];
+            const array = fieldType.split(".");
+            const savedColor = (array.length === 1) ?
+                elementStyles[fieldType] :
+                array.reduce((previousValue, currentValue) => {
+                    return elementStyles[previousValue][currentValue];
+                });
 
             setColor(savedColor);
         }

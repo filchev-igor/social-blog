@@ -1,5 +1,5 @@
 import {useFullUserData, useSession} from "../../hooks";
-import React, {Fragment, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {generateUniqueID} from "web-vitals/dist/modules/lib/generateUniqueID";
 import {doc, updateDoc} from "firebase/firestore";
 import {firebaseDb} from "../../Firebase";
@@ -7,12 +7,15 @@ import {firebaseDb} from "../../Firebase";
 const icons = [
     "hand-thumbs",
     "caret",
-    "chevron"
+    "chevron",
+    "arrow",
+    "arrow-bar"
 ];
 
-const LikeButtons = ({type = "like"}) => {
+const LikeButtonsIcon = ({type = "like"}) => {
     const {isLoadingUserCollection, userCollection} = useFullUserData();
 
+    const [color, setColor] = useState(type === "like" ? "success" : "dislike");
     const [iconName, setIconName] = useState(icons[0]);
     const [isMakingFetch, setIsMakingFetch] = useState(false);
 
@@ -21,43 +24,26 @@ const LikeButtons = ({type = "like"}) => {
 
     const user = useSession();
 
-    const radioLabels = icons.map((value, index) => {
+    const radioLabels = icons.map(value => {
         const id = generateUniqueID();
 
-        const handleIconChange = e => {
+        const handleIconChange = () => {
             if (!isMakingFetch && !isLoadingUserCollection)
-                setIconName(e.target.value);
+                setIconName(value);
         };
 
-        const outline = iconName === value ? "outline-" : "";
-        const color = type === "like" ? "success" : "danger";
+        const outline = iconName !== value ? "outline-" : "";
 
         return (
             <button key={id}
                 type="button"
-                className={`btn btn-${isPressed ? "" : "outline-"}success`}
-                onClick={handleIconChange}
-                onMouseEnter={handleButtonHover}
-                onMouseLeave={handleButtonRelease}>
-                <i className={`bi bi-hand-thumbs-up${isHovered ? "-fill" : ""}`}>
+                className={`btn btn-${outline}${color === "white" ? "light" : color}`}
+                onClick={handleIconChange}>
+                <i className={`bi bi-${value}-${type === "like" ? "up" : "down"}`}>
 
                 </i>
             </button>
         );
-        return <Fragment key={id}>
-            <input
-                autoComplete="off"
-                className="btn-check"
-                value={value}
-                id={id}
-                onClick={handleIconChange}
-                type="radio"/>
-
-            <label
-                className={`btn rounded-circle p-3 btn-${outline}${color}`}
-                htmlFor={id}>
-            </label>
-        </Fragment>;
     });
 
     useEffect(() => {
@@ -73,7 +59,7 @@ const LikeButtons = ({type = "like"}) => {
         setIsMakingFetch(true);
 
         const fetchLikeIcon = async () => {
-            const key = `interfaceStyles.${type}.icon`;
+            const key = `interfaceStyles.likeButtons.${type}.icon`;
 
             const usersData = {
 
@@ -96,16 +82,16 @@ const LikeButtons = ({type = "like"}) => {
     useEffect(() => {
         if (!isLoadingUserCollection) {
             const icon = userCollection['interfaceStyles']['likeButtons'][type]['icon'];
+            const background = userCollection['interfaceStyles']['likeButtons'][type]['background'];
 
             setIconName(icon);
+            setColor(background);
         }
     }, [isLoadingUserCollection, userCollection]);
 
     return (
-        <div className="gap-2 d-flex">
-            {radioLabels}
-        </div>
+        <div className="gap-2 d-flex">{radioLabels}</div>
     );
 };
 
-export default LikeButtons;
+export default LikeButtonsIcon;

@@ -3,7 +3,7 @@ import React, {useContext, useState} from "react";
 import {Link, useHistory} from "react-router-dom";
 import * as ROUTES from "../constants/routes";
 import { IsInitializingContext} from "../contexts";
-import {firebaseAuthErrorData} from "../constants/firebaseErrors";
+import {firebaseAuthErrorData} from "../constants/firebase";
 import Input from "../components/layout/input";
 import {useSession} from "../hooks";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";

@@ -8,7 +8,7 @@ import CommentsList from "./commentsList";
 import {CommentsContext} from "../../contexts";
 import LikeButton from "../layout/likeButton";
 import DislikeButton from "../layout/dislikeButtton";
-import {POSTS_COLLECTION} from "../../constants/likeCollectionNames";
+import {POSTS_COLLECTION} from "../../constants/firebase";
 import PlaceholderCard from "../layout/placeholderCard";
 import * as interfaceStyles from "../../constants/interfaceStyles";
 

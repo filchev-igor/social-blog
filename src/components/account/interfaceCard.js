@@ -2,7 +2,7 @@ import React from "react";
 import ColorRadio from "./colorRadio";
 import * as interfaceConst from "../../constants/interfaceStyles";
 import ColorSchemeSwitcher from "./colorSchemeSwitcher";
-import LikeButtons from "./likeButtons";
+import LikeButtonsIcon from "./likeButtonsIcon";
 
 const InterfaceCard = ({interfaceStyle}) => {
     const title = interfaceStyle[0].toUpperCase() + interfaceStyle.slice(1);
@@ -74,11 +74,19 @@ const InterfaceCard = ({interfaceStyle}) => {
                 {interfaceStyle === interfaceConst.LIKE_BUTTONS &&
                 <>
                     <h6 className="card-subtitle mb-2 text-muted">Like button</h6>
-                    <div className="card-text">
+                    <div className="card-text mb-2">
                         <ColorRadio type="like.background" interfaceStyle={collectionField}/>
                     </div>
-                    <div className="card-text">
-                        <LikeButtons/>
+                    <div className="card-text mb-2">
+                        <LikeButtonsIcon/>
+                    </div>
+
+                    <h6 className="card-subtitle mb-2 text-muted">Dislike button</h6>
+                    <div className="card-text mb-2">
+                        <ColorRadio type="dislike.background" interfaceStyle={collectionField}/>
+                    </div>
+                    <div className="card-text mb-2">
+                        <LikeButtonsIcon type="dislike"/>
                     </div>
                 </>}
             </div>

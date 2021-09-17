@@ -3,7 +3,7 @@ import {useFullUserData, useSession} from "../../hooks";
 import {Link} from "react-router-dom";
 import LikeButton from "../layout/likeButton";
 import DislikeButton from "../layout/dislikeButtton";
-import {POSTS_COLLECTION} from "../../constants/likeCollectionNames";
+import {POSTS_COLLECTION} from "../../constants/firebase";
 import * as interfaceStyles from "../../constants/interfaceStyles";
 
 const Card = props => {

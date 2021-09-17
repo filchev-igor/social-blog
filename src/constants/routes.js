@@ -16,4 +16,4 @@ Account routes
 export const ACCOUNT_USER_DATA = "/user-data";
 export const ACCOUNT_SETTINGS = "/account-settings";
 export const ACCOUNT_INTERFACE_SETTINGS = "/interface-settings";
-export const DELETE_ACCOUNT = "/delete-account";
+export const RESET_ACCOUNT = "/reset-account";
