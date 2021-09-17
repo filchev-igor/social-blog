@@ -2,12 +2,11 @@ import React, {Fragment, useContext, useEffect, useRef, useState} from "react";
 import {
     AddElementButton, DeleteElement, DeletePost,
     DraggableElement, ElementCentered,
-    ImageLink, InformationButton,
+    ImageLink,
     PostElements, PublishPost,
     Text, TogglePost,
     VideoLink
 } from "../components/addPost/elements";
-import {ContainerFluid} from "../components/globalLayout";
 import {IsInitializingContext} from "../contexts";
 import {useEditedPostCollection, useFullUserData, useSession} from "../hooks";
 import * as ROUTES from "../constants/routes";
@@ -34,6 +33,9 @@ const AddPost = () => {
     const [hasPostBeingPublished, setHasPostBeingPublished] = useState(false);
     const [lastSavedTime, setLastSavedTime] = useState(null);
     const [isPostStructureDisplayed, setIsPostStructureDisplayed] = useState(false);
+    const [hasNotNamedUser, setHasNotNamedUser] = useState(false);
+
+    const [isComponentBuilt, setIsComponentBuilt] = useState(false);
 
     const [background, setBackground] = useState('white');
 
@@ -119,6 +121,9 @@ const AddPost = () => {
         if (!window.confirm(PUBLISH_POST))
             return;
 
+        if (hasNotNamedUser)
+            return;
+
         setIsPostBeingManipulated(true);
 
         (async() => {
@@ -172,10 +177,17 @@ const AddPost = () => {
     });
 
     useEffect(() => {
-        if (isDraftCheckOver && existingDocId) {
-            setDocId(existingDocId);
-            setTitle(data.title);
-            setContentElements(data.structure);
+        if (isDraftCheckOver) {
+            return new Promise(resolve => {
+                if (existingDocId) {
+                    setDocId(existingDocId);
+                    setTitle(data.title);
+                    setContentElements(data.structure);
+                }
+
+                setTimeout(() => resolve(true), 2000);
+            })
+                .then(value => setIsComponentBuilt(value))
         }
     }, [data, existingDocId, isDraftCheckOver]);
 
@@ -184,6 +196,9 @@ const AddPost = () => {
             return;
 
         if (isPostBeingManipulated)
+            return;
+
+        if (!isComponentBuilt)
             return;
 
         const {firstName, lastName, uid} = userDataRef.current;
@@ -249,7 +264,7 @@ const AddPost = () => {
         catch (e) {
 
         }
-    }, [title, contentElements, docId, isPostBeingManipulated, isTitleEmpty, isPostEmpty]);
+    }, [title, contentElements]);
 
     useEffect(() => {
         if (!isLoadingUserCollection) {
@@ -268,6 +283,11 @@ const AddPost = () => {
             const backgroundColor = postElementStyles['background'];
 
             setBackground(backgroundColor);
+
+            if (userDataRef.current.firstName && userDataRef.current.lastName)
+                setHasNotNamedUser(false);
+            else
+                setHasNotNamedUser(true);
         }
     }, [isLoadingUserCollection, userCollection]);
 
@@ -284,11 +304,6 @@ const AddPost = () => {
         <div className={`container-fluid py-5 min-vh-100 bg-${background}`}>
             <div className="row gy-3">
                 <ElementCentered>
-
-                    <InformationButton/>
-                </ElementCentered>
-
-                <ElementCentered>
                     <Input
                         placeholder='Title of your post'
                         value={title}
@@ -298,6 +313,13 @@ const AddPost = () => {
                 {hasPostBeingPublished &&
                 <ElementCentered>
                     <div className="alert alert-success mt-3" role="alert">{PUBLISH_POST_SUCCESS}</div>
+                </ElementCentered>}
+
+                {hasNotNamedUser &&
+                <ElementCentered>
+                    <div className="alert alert-danger mt-3" role="alert">
+                        Impossible to publish post without any name
+                    </div>
                 </ElementCentered>}
 
                 {contentElements.map((value, index) => {
@@ -344,15 +366,22 @@ const AddPost = () => {
                 </ElementCentered>
 
                 <ElementCentered>
-                    <PublishPost handleClick={handlePublishPost} text="Publish"/>
+                    <div className="d-grid d-md-flex gap-2">
+                        <PublishPost handleClick={handlePublishPost} text="Publish"/>
 
-                    <DeletePost handleClick={handlePostDelete} text="delete the draft"/>
+                        <DeletePost handleClick={handlePostDelete} text="delete the draft"/>
 
-                    <span>{lastSavedTime ? moment(lastSavedTime).format("[Saved] HH:mm") : ""}</span>
+                        <button
+                            type="button"
+                            className="btn text-dark opacity-100"
+                            disabled={true}>
+                            {lastSavedTime ? moment(lastSavedTime).format("[Last saved] HH:mm") : ""}
+                        </button>
 
-                    <TogglePost
-                        isPostStructureDisplayed={isPostStructureDisplayed}
-                        onClick={() => setIsPostStructureDisplayed(!isPostStructureDisplayed)}/>
+                        <TogglePost
+                            isPostStructureDisplayed={isPostStructureDisplayed}
+                            onClick={() => setIsPostStructureDisplayed(!isPostStructureDisplayed)}/>
+                    </div>
                 </ElementCentered>
 
                 {isPostStructureDisplayed &&

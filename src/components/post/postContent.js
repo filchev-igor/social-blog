@@ -172,9 +172,11 @@ const PostContent = () => {
                         isCommentPublished, setIsCommentPublished
                     }}>
                         <div className={`card bg-${commentsBackground}`}>
+                            {!!commentsNumber &&
                             <div className="card-body">
                                 <CommentsList postId={postId} onCommentPublished={setIsCommentPublished}/>
-                            </div>
+                            </div>}
+
                             <div className="card-footer">
                                 {currentCommentId === "root" &&
                                 <WriteComment

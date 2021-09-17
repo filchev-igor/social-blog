@@ -1,4 +1,4 @@
-import {Link} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import * as ROUTES from "../../constants/routes";
 import LogoutButton from "../logoutButton";
 import React, {useEffect, useState} from "react";
@@ -12,6 +12,8 @@ const LowerNavbar = () => {
     const [backgroundColor, setBackgroundColor] = useState('light');
     const [isLightColorScheme, setIsLightColorScheme] = useState(true);
     const [logoutColor, setLogoutColor] = useState('danger');
+
+    const location = useLocation();
 
     useEffect(() => {
         if (!isLoadingUserCollection) {
@@ -52,20 +54,28 @@ const LowerNavbar = () => {
             <div className="collapse navbar-collapse justify-content-center" id="navbarNav">
                 <ul className="navbar-nav text-uppercase">
                     <li className="nav-item">
-                        <Link className="nav-link" to={ROUTES.HOME}>Home</Link>
+                        <Link
+                            className={`nav-link ${location.pathname === ROUTES.HOME ? "active" : ""}`}
+                            to={ROUTES.HOME}>Home</Link>
                     </li>
 
                     <li className="nav-item">
-                        <Link className="nav-link" to={ROUTES.ADD_POST}>Add post</Link>
+                        <Link
+                            className={`nav-link ${location.pathname === ROUTES.ADD_POST ? "active" : ""}`}
+                                to={ROUTES.ADD_POST}>Add post</Link>
                     </li>
 
                     <li className="nav-item">
-                        <Link className="nav-link" to={ROUTES.ACCOUNT}>Account</Link>
+                        <Link
+                            className={`nav-link ${location.pathname.includes(ROUTES.ACCOUNT) ? "active" : ""}`}
+                            to={ROUTES.ACCOUNT}>Account</Link>
                     </li>
 
                     {!isLoadingUserCollection && userCollection.role === ROLES.ADMIN &&
                     <li className="nav-item">
-                        <Link className="nav-link" to={ROUTES.STATISTICS}>STATISTICS</Link>
+                        <Link
+                            className={`nav-link ${location.pathname === ROUTES.STATISTICS ? "active" : ""}`}
+                            to={ROUTES.STATISTICS}>STATISTICS</Link>
                     </li>}
 
                     <li className="nav-item">

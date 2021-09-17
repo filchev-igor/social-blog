@@ -13,6 +13,8 @@ const WriteComment = props => {
         setCurrentCommentId
     } = useContext(CommentsContext);
 
+    const [hasNotNamedUser, setHasNotNamedUser] = useState(false);
+    
     const {
         postId,
         isFirstComment = false,
@@ -28,6 +30,9 @@ const WriteComment = props => {
 
     const handleComment = () => {
         if (!comment.length)
+            return;
+
+        if (hasNotNamedUser)
             return;
 
         (async () => {
@@ -84,12 +89,25 @@ const WriteComment = props => {
         if (isCommentPublished && comment.length)
             setIsCommentPublished(false);
     }, [comment, isCommentPublished, setIsCommentPublished]);
+    
+    useEffect(() => {
+        if (userCollection.name.first && userCollection.name.last)
+            setHasNotNamedUser(false);
+        else 
+            setHasNotNamedUser(true);
+    }, [userCollection.name.first, userCollection.name.last]);
 
     return <>
         <Input placeholder="Comment here" onChange={setComment} value={comment}/>
+
         <button type="button" className="btn btn-outline-primary" onClick={handleComment}>
             Publish
         </button>
+
+        {hasNotNamedUser &&
+        <div className="alert alert-danger mt-3" role="alert">
+            Impossible to publish post without any name
+        </div>}
     </>;
 }
 
