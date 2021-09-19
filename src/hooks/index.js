@@ -51,7 +51,12 @@ export const useFullUserData = () => {
 export const useUserCollection = uid => {
     const [state, setState] = useState({
         isLoadingUserCollection: true,
-        userCollection: null
+        userCollection: {
+            name: {
+                first: '',
+                last: ''
+            }
+        }
     });
 
     const onChange = doc => setState({
@@ -74,42 +79,42 @@ export const useEditedPostCollection = uid => {
     const [state, setState] = useState({
         isDraftCheckOver: false,
         docId: null,
-        data: null
+        title: null,
+        structure: null
     });    
 
     useEffect(() => {
         const getEditedPost = async() => {
-            const arrayId = [];
-            const arrayData = [];
-
-            try {
-                const postsRef = collection(firebaseDb, "posts");
-
-                const q = query(
-                    postsRef,
-                    where("creator.uid", "==", uid),
-                    where("isPublished", "==", false));
-
-                const querySnapshot = await getDocs(q);
-
-                querySnapshot.forEach(doc => {
-                    arrayId.push(doc.id);
-                    arrayData.push(doc.data());
-                });
-            }
-            catch (e) {
-
-            }
-
-            return {
-                arrayId, arrayData
+            const obj = {
+                docId: null,
+                title: null,
+                structure: null
             };
+
+            const postsRef = collection(firebaseDb, "posts");
+
+            const q = query(
+                postsRef,
+                where("creator.uid", "==", uid),
+                where("isPublished", "==", false)
+            );
+
+            const querySnapshot = await getDocs(q);
+
+            querySnapshot.forEach(doc => {
+                obj["docId"] = doc.id;
+                obj["title"] = doc.data().title;
+                obj["structure"] = doc.data().structure;
+            });
+
+            return obj;
         }
         
-        getEditedPost().then(({arrayId, arrayData}) => setState({
+        getEditedPost().then(obj => setState({
             isDraftCheckOver: true,
-            docId: arrayId[0],
-            data: arrayData[0]
+            docId: obj.docId,
+            title: obj.title,
+            postLayout: obj.structure
         }));
     }, [uid]);
 
@@ -225,7 +230,20 @@ export const usePost = postId => {
     });
 
     useEffect(() => {
-        const obj = {...inputData};
+        const obj = {
+            firstName: '',
+            lastName: '',
+            creatorUid: "",
+            date: '',
+            title: '',
+            rating: '',
+            structure: [],
+            likedBy: {
+                negatively: [],
+                positively: []
+            },
+            comments: 0
+        };
 
         const postsRef = doc(firebaseDb, "posts", postId);
 

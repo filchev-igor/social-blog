@@ -5,7 +5,8 @@ const Textarea = props => {
     const {
         value,
         placeholder,
-        onChange
+        onChange,
+        dataDragId
     } = props;
 
     const id = generateUniqueID();
@@ -17,6 +18,7 @@ const Textarea = props => {
             <textarea
                 className="form-control"
                 id={id}
+                data-drag-id={dataDragId}
                 onChange={handleChange}
                 onPaste={handleChange}
                 placeholder={placeholder}

@@ -5,7 +5,7 @@ import {firebaseAuthErrorData} from "../../constants/firebase";
 import {doc, deleteDoc, updateDoc} from "firebase/firestore";
 import {firebaseDb} from "../../Firebase";
 import {getAuth, deleteUser, reauthenticateWithCredential, EmailAuthProvider} from "firebase/auth";
-import {DELETE_ACCOUNT, ERASE_ACCOUNT, RESET_COLORS} from "../../constants/account";
+import {DELETE_ACCOUNT, ERASE_ACCOUNT, RESET_COLORS} from "../../constants";
 import {DEFAULT_STYLES} from "../../constants/interfaceStyles";
 
 const ResetAccount = () => {

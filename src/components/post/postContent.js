@@ -11,6 +11,7 @@ import DislikeButton from "../layout/dislikeButtton";
 import {POSTS_COLLECTION} from "../../constants/firebase";
 import PlaceholderCard from "../layout/placeholderCard";
 import * as interfaceStyles from "../../constants/interfaceStyles";
+import {generateUniqueID} from "web-vitals/dist/modules/lib/generateUniqueID";
 
 const PostContent = () => {
     const {postId} = useParams();
@@ -45,20 +46,43 @@ const PostContent = () => {
     const [isCommentPublished, setIsCommentPublished] = useState(false);
     const [currentCommentId, setCurrentCommentId] = useState("root");
 
-    const postStructure = structure.map((element, index) => {
-        const value = [];
+    const postStructure = structure.map(element => {
+        const id = generateUniqueID();
 
-        if (element.type === "video link")
-            return false;
+        const getCardValue = () => {
+            if (element.type === "text") {
+                return element.value;
+            } else if (element.type === "link to image") {
+                return (
+                    <img src={element.value} className="img-fluid" alt="Element is not loaded"/>
+                );
+            } else if (element.type === "link to youtube") {
+                const url = element.value.split("?");
 
-        if (element.type === "text")
-            value.push(element.value);
-        else if (element.type === "image link")
-            value.push(<img src={element.value} className="img-fluid" alt="Element is not loaded" />);
-        //else if (element.type === "video link")
-        //value.push(element.value);
+                const path = url[0].split("/");
+                const query = url[1].split("=");
 
-        return <p key={postId + "-element-" + index} className="card-text">{value[0]}</p>;
+                const videoId = path[path.length - 1];
+                const timeMark = query[1];
+
+                const validUrl = `https://www.youtube.com/embed/${videoId}?start=${timeMark}`;
+
+                return (
+                    <div className="ratio ratio-16x9">
+                        <iframe
+                            src={validUrl}
+                            title="YouTube video player"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen>
+
+                        </iframe>
+                    </div>
+                );
+            }
+        };
+
+        return <p key={id} className="card-text">{getCardValue()}</p>;
     });
 
     useEffect(() => {

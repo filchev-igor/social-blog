@@ -1,12 +1,5 @@
-import React, {Fragment, useContext, useEffect, useRef, useState} from "react";
-import {
-    AddElementButton, DeleteElement, DeletePost,
-    DraggableElement, ElementCentered,
-    ImageLink,
-    PostElements, PublishPost,
-    Text, TogglePost,
-    VideoLink
-} from "../components/addPost/elements";
+import React, {useContext, useEffect, useMemo, useRef, useState} from "react";
+import {ElementCentered} from "../components/addPost/elements";
 import {IsInitializingContext} from "../contexts";
 import {useEditedPostCollection, useFullUserData, useSession} from "../hooks";
 import * as ROUTES from "../constants/routes";
@@ -14,86 +7,66 @@ import {useHistory} from "react-router-dom";
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import {firebaseDb} from "../Firebase";
 import moment from "moment";
-import Input from "../components/layout/input";
 import * as interfaceStyles from "../constants/interfaceStyles";
-
-const DELETE_DRAFT = "Do you want to delete the draft?";
-const PUBLISH_POST = "Do you want to publish the draft?";
-
-const PUBLISH_POST_SUCCESS = "Post was published";
+import DraftLayout from "../components/addPost/draftLayout";
+import {DELETE_DRAFT, INTRODUCE_YOURSELF, PUBLISH_POST, PUBLISH_POST_SUCCESS} from "../constants";
+import DeleteDraft from "../components/addPost/deleteDraft";
+import Input from "../components/layout/input";
+import useDraftLayout from "../hooks/useDraftLayout";
 
 const AddPost = () => {
     const isInitializing = useContext(IsInitializingContext);
     const user = useSession();
 
     const [title, setTitle] = useState('');
-    const [contentElements, setContentElements] = useState([]);
     const [docId, setDocId] = useState(null);
-    const [isPostBeingManipulated, setIsPostBeingManipulated] = useState(false);
-    const [hasPostBeingPublished, setHasPostBeingPublished] = useState(false);
     const [lastSavedTime, setLastSavedTime] = useState(null);
-    const [isPostStructureDisplayed, setIsPostStructureDisplayed] = useState(false);
-    const [hasNotNamedUser, setHasNotNamedUser] = useState(false);
-
-    const [isComponentBuilt, setIsComponentBuilt] = useState(false);
-
     const [background, setBackground] = useState('white');
+    const [isPostPublished, setIsPostPublished] = useState(false);
 
     const {isLoadingUserCollection, userCollection} = useFullUserData();
-    const {isDraftCheckOver, docId: existingDocId, data} = useEditedPostCollection(isInitializing ? "" :
-        user ? user.uid : "");
+    const {
+        isDraftCheckOver,
+        docId : existingDocId,
+        title : existingTitle,
+        postLayout : existingPostLayout
+    } = useEditedPostCollection(user ? user.uid : "");
 
     const userDataRef = useRef({
         firstName: "",
         lastName: "",
         uid: null
     });
+    const isPostBeingManipulated = useRef(false);
+
+    userDataRef.current.firstName = userCollection.name.first;
+    userDataRef.current.lastName = userCollection.name.last;
+    userDataRef.current.uid = user ? user.uid : null;
+    
+    const {state : postLayout, dispatch : dispatchPostLayout} = useDraftLayout();
+
+    const hasUserCalledHimself = useMemo(() => !!userCollection.name.first && !!userCollection.name.last,
+        [userCollection.name.first, userCollection.name.last]);
 
     const history = useHistory();
 
     const condition = authUser => !!authUser;
 
-    const isTitleEmpty = !title;
-    const isPostEmpty = !contentElements.length;
-
-    /*
-    //Callback function, which writes state of the field to the contentElements state
-     */
-    const handleEditContentElement = (value, index) => {
-        if (!isDraftCheckOver || isPostBeingManipulated)
-            return;
-
-        const object = {
-            type: contentElements[index].type,
-            value: value
-        }
-
-        const array = [...contentElements];
-
-        array.splice(index, 1, object);
-
-        setContentElements(array);
-    };
-
-    userDataRef.current.firstName = isLoadingUserCollection ? "" : userCollection.name.first;
-    userDataRef.current.lastName = isLoadingUserCollection ? "" : userCollection.name.last;
-    userDataRef.current.uid = user ? user.uid : null;
-
     const handleTitleChange = value => {
-        if (!isDraftCheckOver || isPostBeingManipulated)
+        if (isPostBeingManipulated.current)
             return;
 
         setTitle(value);
     };
 
-    const handlePostDelete = () => {
-        if (isTitleEmpty && isPostEmpty)
+    const handleDraftDelete = () => {
+        if (!title.length && !postLayout.length)
             return;
-        
+
         if (!window.confirm(DELETE_DRAFT))
             return;
 
-        setIsPostBeingManipulated(true);
+        isPostBeingManipulated.current = true;
 
         (async() => {
             const usersData = {
@@ -107,26 +80,23 @@ const AddPost = () => {
             await updateDoc(usersRef, usersData);
         })().then(() => {
             setTitle('');
-            setContentElements([]);
+            dispatchPostLayout({type: "reset layout"});
             setDocId(null);
 
-            setIsPostBeingManipulated(false);
+            isPostBeingManipulated.current = false;
         });
     };
 
     const handlePublishPost = () => {
-        if (isTitleEmpty || isPostEmpty)
+        if (!title.length || !postLayout.length)
             return;
-        
+
         if (!window.confirm(PUBLISH_POST))
             return;
 
-        if (hasNotNamedUser)
-            return;
+        isPostBeingManipulated.current = true;
 
-        setIsPostBeingManipulated(true);
-
-        (async() => {
+        (async () => {
             const postsData = {
                 "isPublished": true,
                 "dates.published": new Date()
@@ -146,65 +116,42 @@ const AddPost = () => {
             await updateDoc(usersRef, usersData);
         })().then(() => {
             setTitle('');
-            setContentElements([]);
+            dispatchPostLayout({type: "reset layout"});
             setDocId(null);
 
-            setIsPostBeingManipulated(false);
-            setHasPostBeingPublished(true);
+            isPostBeingManipulated.current = false;
+            setIsPostPublished(true);
         });
     };
 
-    const postStructure = contentElements.map((element, index) => {
-        const value = [];
-
-        if (element.type === "add element")
-            return null
-
-        if (!element.value.length)
-            return null;
-
-        if (element.type === "video link")
-            return null;
-
-        if (element.type === "text")
-            value.push(element.value);
-        else if (element.type === "image link")
-            value.push(<img src={element.value} className="img-fluid" alt="Element is not loaded" />);
-        //else if (element.type === "video link")
-        //value.push(element.value);
-
-        return <p key={"element-" + index} className="card-text">{value[0]}</p>;
-    });
-
     useEffect(() => {
-        if (isDraftCheckOver) {
-            return new Promise(resolve => {
-                if (existingDocId) {
-                    setDocId(existingDocId);
-                    setTitle(data.title);
-                    setContentElements(data.structure);
-                }
+        if (existingDocId) {
+            new Promise(resolve => {
+                isPostBeingManipulated.current = true;
 
-                setTimeout(() => resolve(true), 2000);
+                setDocId(existingDocId);
+                setTitle(existingTitle);
+                dispatchPostLayout({type: "set layout", array: existingPostLayout});
+
+                setTimeout(() => resolve(), 2000);
             })
-                .then(value => setIsComponentBuilt(value))
+                .then(() => isPostBeingManipulated.current = false);
         }
-    }, [data, existingDocId, isDraftCheckOver]);
+    }, [dispatchPostLayout, existingDocId, existingPostLayout, existingTitle]);
 
     useEffect(() => {
-        if (isTitleEmpty && isPostEmpty)
+        const isDraftEmpty = !title.length && !postLayout.length;
+
+        if (isDraftEmpty)
             return;
 
-        if (isPostBeingManipulated)
-            return;
-
-        if (!isComponentBuilt)
+        if (isPostBeingManipulated.current)
             return;
 
         const {firstName, lastName, uid} = userDataRef.current;
 
         const createPost = async() => {
-            setIsPostBeingManipulated(true);
+            isPostBeingManipulated.current = true;
 
             const postsData = {
                 title: title,
@@ -216,7 +163,7 @@ const AddPost = () => {
                 dates: {
                     created: new Date()
                 },
-                structure: contentElements,
+                structure: postLayout,
                 isPublished: false,
                 rating: 0,
                 likedBy : {
@@ -232,7 +179,7 @@ const AddPost = () => {
 
             const postRef = await addDoc(collection(firebaseDb, "posts"), postsData);
 
-            const usersRef = doc(firebaseDb, "users", user.uid);
+            const usersRef = doc(firebaseDb, "users", uid);
 
             await updateDoc(usersRef, usersData);
 
@@ -242,7 +189,7 @@ const AddPost = () => {
         const editPost = async() => {
             const docData = {
                 title: title,
-                structure: contentElements
+                structure: postLayout
             };
 
             const docRef = doc(firebaseDb, "posts", docId);
@@ -250,22 +197,23 @@ const AddPost = () => {
             await updateDoc(docRef, docData);
         };
 
-        try {
-            if (!docId)
-                createPost().then(() => {
-                    setIsPostBeingManipulated(false);
-                    setHasPostBeingPublished(false);
+        if (!docId) {
+            createPost().then(() => {
+                isPostBeingManipulated.current = false;
+                setIsPostPublished(false);
 
-                    setLastSavedTime(new Date());
-                });
-            else
-                editPost().then(() => setLastSavedTime(new Date()));
+                setLastSavedTime(new Date());
+            });
         }
-        catch (e) {
-
+        else {
+            editPost().then(() => setLastSavedTime(new Date()));
         }
-    }, [title, contentElements]);
 
+    }, [title, postLayout, docId]);
+
+    /*
+    *Code in the useEffect gets styles from database and applies them to the page
+     */
     useEffect(() => {
         if (!isLoadingUserCollection) {
             const component = interfaceStyles.NEW_POST
@@ -283,11 +231,6 @@ const AddPost = () => {
             const backgroundColor = postElementStyles['background'];
 
             setBackground(backgroundColor);
-
-            if (userDataRef.current.firstName && userDataRef.current.lastName)
-                setHasNotNamedUser(false);
-            else
-                setHasNotNamedUser(true);
         }
     }, [isLoadingUserCollection, userCollection]);
 
@@ -300,6 +243,23 @@ const AddPost = () => {
         return null;
     }
 
+    if (!isDraftCheckOver)
+        return null;
+
+    if (!hasUserCalledHimself) {
+        return (
+            <div className={`container-fluid py-5 min-vh-100 bg-${background}`}>
+                <div className="row gy-3">
+                    <ElementCentered>
+                        <div className="alert alert-danger mt-3" role="alert">
+                            {INTRODUCE_YOURSELF}
+                        </div>
+                    </ElementCentered>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={`container-fluid py-5 min-vh-100 bg-${background}`}>
             <div className="row gy-3">
@@ -310,66 +270,17 @@ const AddPost = () => {
                         onChange={handleTitleChange}/>
                 </ElementCentered>
 
-                {hasPostBeingPublished &&
-                <ElementCentered>
-                    <div className="alert alert-success mt-3" role="alert">{PUBLISH_POST_SUCCESS}</div>
-                </ElementCentered>}
-
-                {hasNotNamedUser &&
-                <ElementCentered>
-                    <div className="alert alert-danger mt-3" role="alert">
-                        Impossible to publish post without any name
-                    </div>
-                </ElementCentered>}
-
-                {contentElements.map((value, index) => {
-                    return <Fragment key={"Add element " + index}>
-                        <ElementCentered started={
-                            <AddElementButton setState={setContentElements} array={contentElements} index={index}/>
-                        }/>
-
-                        <ElementCentered
-                            started={<DraggableElement/>}
-                            ended={
-                                <DeleteElement
-                                    setState={setContentElements}
-                                    array={contentElements}
-                                    index={index}/>}>
-                            {value.type === "text" &&
-                            <Text
-                                index={index}
-                                value={value.value}
-                                callback={handleEditContentElement}/>}
-
-                            {value.type === "picture"}
-
-                            {value.type === "image link" &&
-                            <ImageLink
-                                index={index}
-                                value={value.value}
-                                callback={handleEditContentElement}/>}
-
-                            {value.type === "video link" &&
-                            <VideoLink
-                                index={index}
-                                value={value.value}
-                                callback={handleEditContentElement}/>}
-
-                            {value.type === "add element" &&
-                            <PostElements setState={setContentElements} array={contentElements} index={index}/>}
-                        </ElementCentered>
-                    </Fragment>
-                })}
-
-                <ElementCentered>
-                    <PostElements setState={setContentElements} array={contentElements}/>
-                </ElementCentered>
+                <DraftLayout state={postLayout} dispatch={dispatchPostLayout}/>
 
                 <ElementCentered>
                     <div className="d-grid d-md-flex gap-2">
-                        <PublishPost handleClick={handlePublishPost} text="Publish"/>
+                        <button
+                            className={`btn btn-outline-primary ${!postLayout.length ? "invisible" : ""}`}
+                            onClick={handlePublishPost}>
+                            {PUBLISH_POST}
+                        </button>
 
-                        <DeletePost handleClick={handlePostDelete} text="delete the draft"/>
+                        <DeleteDraft handleDraftDelete={handleDraftDelete} isInvisible={!postLayout.length}/>
 
                         <button
                             type="button"
@@ -377,41 +288,13 @@ const AddPost = () => {
                             disabled={true}>
                             {lastSavedTime ? moment(lastSavedTime).format("[Last saved] HH:mm") : ""}
                         </button>
-
-                        <TogglePost
-                            isPostStructureDisplayed={isPostStructureDisplayed}
-                            onClick={() => setIsPostStructureDisplayed(!isPostStructureDisplayed)}/>
                     </div>
                 </ElementCentered>
 
-                {isPostStructureDisplayed &&
+                {isPostPublished &&
                 <ElementCentered>
-                    <div className="card">
-                        <div className="card-body">
-                            <h5 className="card-title">{title}</h5>
-
-                            {postStructure}
-                        </div>
-                    </div>
+                    <div className="alert alert-success mt-3" role="alert">{PUBLISH_POST_SUCCESS}</div>
                 </ElementCentered>}
-
-                {//TODO tag list
-                    }
-                <div>
-                    <datalist>
-                        <option value="Edge" />
-                    </datalist>
-                </div>
-
-                <ElementCentered
-                    started={<DraggableElement/>}>
-                    23
-                </ElementCentered>
-
-                <ElementCentered
-                    started={<DraggableElement/>}>
-                    67
-                </ElementCentered>
             </div>
         </div>
     );

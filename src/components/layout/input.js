@@ -6,7 +6,8 @@ const Input = props => {
         type = "text",
         value,
         placeholder,
-        onChange
+        onChange,
+        dataDragId
     } = props;
 
     const id = generateUniqueID();
@@ -18,6 +19,7 @@ const Input = props => {
             <input
                 type={type}
                 className="form-control"
+                data-drag-id={dataDragId}
                 id={id}
                 value={value}
                 onChange={handleChange}
