@@ -42,7 +42,7 @@ const Cards = ({publishedPosts}) => publishedPosts.map(value => {
             }
         };
 
-        return <p key={cardElementsId} className="card-text">{getCardValue()}</p>;
+        return <div key={cardElementsId} className="card-text">{getCardValue()}</div>;
     });
 
 

@@ -82,7 +82,7 @@ const PostContent = () => {
             }
         };
 
-        return <p key={id} className="card-text">{getCardValue()}</p>;
+        return <div key={id} className="card-text">{getCardValue()}</div>;
     });
 
     useEffect(() => {

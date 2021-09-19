@@ -21,8 +21,6 @@ const Statistics = () => {
         return null;
 
     if (!isInitializing && !condition(user)) {
-        console.log(23);
-
         history.push(ROUTES.SIGN_IN);
 
         return null;

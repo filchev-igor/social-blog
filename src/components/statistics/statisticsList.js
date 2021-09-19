@@ -13,7 +13,7 @@ const StatisticsList = () => {
                 <th scope="row">{element.publishedPosts}</th>
                 <th scope="row">{element.hasDraft ? "Yes" : "No"}</th>
             </tr>
-        )
+        );
     });
 
     return (
