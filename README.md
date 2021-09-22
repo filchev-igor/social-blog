@@ -1,70 +1,31 @@
-# Getting Started with Create React App
+### Table of contest
+1. [About](#about)
+2. [Important note](#important-note)
+3. [Used technologies](#used-technologies)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<a name="about"></a>
 
-## Available Scripts
+## About
 
-In the project directory, you can run:
+This project will let you create the small adaptive to the browser dimensions the multi-page social app with authorization for posting users thought as text, link to images and youtube videos.
+Additionally, users can comment posts and evaluate them. 
+Creating new post page supports an automatic save, inserting and deleting components, simple drag and drop effects, downloading draft from the database and erasing it.
+Users are able to delete their accounts, set styles to default, choose the styles of components (change the background color and text and misc.), change name, email and password.
+Admin user can observe some statistics about users.
 
-### `npm start`
+<a name="important-note"></a>
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Important note
+ 1. Create your app in the Firebase console page. Fill in the file **.env.example** with values from the google firebase console, copy it and rename these two files into **.env.production** and **.env.development**.
+ 2. Run the command **npm start** and type **http://localhost:3000** in the browser
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+<a name="used-technologies"></a>
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Used technologies
+1. Javascript
+    1. React router (displays the pages based on the users log state and page paths)
+    2. React
+    3. Moment.js
+2. Bootstrap
+3. Firebase firestore (NoSQL database)
+4. Firebase auth (for tracing users authorization and their log state)
