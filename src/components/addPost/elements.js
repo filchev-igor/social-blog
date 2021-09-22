@@ -91,7 +91,7 @@ export const AddElementButton = ({dispatch, index}) => {
     );
 };
 
-export const DraggableElement = (id) => {
+export const DraggableElement = ({id}) => {
     const [isDragStart, setIsDragStart] = useState(false);
 
     const handleDragStart = e => {

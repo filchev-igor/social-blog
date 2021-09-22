@@ -56,7 +56,7 @@ const DraftLayout = ({state, dispatch}) => {
                 handleDragEnterEvent={handleDragEnterEvent}
                 id={id}
                 started={
-                    <DraggableElement id={id} index={index}/>}
+                    <DraggableElement id={id}/>}
                 ended={
                     <DeleteElement dispatch={dispatch} index={index}/>}>
 
