@@ -1,6 +1,7 @@
 ### Table of contest
 1. [About](#about)
 2. [Important note](#important-note)
+2. [Images](#images)
 3. [Used technologies](#used-technologies)
 
 <a name="about"></a>
@@ -18,6 +19,23 @@ Admin user can observe some statistics about users.
 ## Important note
  1. Create your app in the Firebase console page. Fill in the file **.env.example** with values from the google firebase console, copy it and rename these two files into **.env.production** and **.env.development**.
  2. Run the command **npm start** and type **http://localhost:3000** in the browser
+
+
+<a name="images"></a>
+
+## Images ##
+
+Post content
+![Post](src/img/Screenshot%202021-09-22%20213532.png)
+
+Post content and comments
+![Post and comments](src/img/Screenshot%202021-09-22%20213742.png)
+
+Interface change page
+![Interface change](src/img/Screenshot%202021-09-22%20213130.png)
+
+Admin statistic page
+![statistics](src/img/Screenshot%202021-09-22%20213810.png)
 
 <a name="used-technologies"></a>
 
