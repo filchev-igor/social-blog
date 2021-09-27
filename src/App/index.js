@@ -19,8 +19,7 @@ import Post from "./post";
 const App = () => {
     const {isInitializing, user} = useAuth();
 
-    const {isLoadingUserCollection, userCollection} = useUserCollection(isInitializing ? "" :
-        user ? user.uid : "");
+    const {isLoadingUserCollection, userCollection} = useUserCollection(user?.uid ?? "");
 
     return (
         <Router>

@@ -30,7 +30,7 @@ const AddPost = () => {
         docId : existingDocId,
         title : existingTitle,
         postLayout : existingPostLayout
-    } = useEditedPostCollection(user ? user.uid : "");
+    } = useEditedPostCollection(user?.uid ?? "");
 
     const userDataRef = useRef({
         firstName: "",
@@ -41,7 +41,7 @@ const AddPost = () => {
 
     userDataRef.current.firstName = userCollection.name.first;
     userDataRef.current.lastName = userCollection.name.last;
-    userDataRef.current.uid = user ? user.uid : null;
+    userDataRef.current.uid = user?.uid ?? null;
     
     const {state : postLayout, dispatch : dispatchPostLayout} = useDraftLayout();
 

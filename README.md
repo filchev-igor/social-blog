@@ -26,10 +26,10 @@ Admin user can observe some statistics about users.
 ## Images ##
 
 Post content
-![Post](src/img/Screenshot%202021-09-22%20213532.png)
+![Post content](src/img/Screenshot%202021-09-27%20200549.png)
 
-Post content and comments
-![Post and comments](src/img/Screenshot%202021-09-22%20213742.png)
+Part of post content and comments
+![Part of post content and comments](src/img/Screenshot%202021-09-27%20200616.png)
 
 Interface change page
 ![Interface change](src/img/Screenshot%202021-09-22%20213130.png)
